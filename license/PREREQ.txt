@@ -1,0 +1,10 @@
+Required Tools:
+
+- CMake
+- VS2017
+- Qt5.9.x
+
+Required Environment Variables:
+
+Variable: Qt5_DIR
+Value (EXAMPLE): C:\ProgramData\QtBase\5.9.8\msvc2017_64\lib\cmake\Qt5

@@ -51,9 +51,23 @@ public:
 
     bool load_files(const QStringList &filenames);
 
+private:
+
+	bool return_to_maximized;
+
 public slots:
 
     void reject() override;
+
+private slots:
+
+	void toggleFullScreen();
+
+	void toggleQDarkMode();
+
+	void toggleDarkMode();
+
+	void toggleLightMode();
 
 protected slots:
 

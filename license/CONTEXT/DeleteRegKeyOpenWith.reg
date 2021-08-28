@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00 
+  
+; Delete Optional Context Menu Entries
+
+[-HKEY_CLASSES_ROOT\*\shell\Open_with_BinViewer]

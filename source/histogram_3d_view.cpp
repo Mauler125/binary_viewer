@@ -25,7 +25,7 @@
 #include <QComboBox>
 #include <QCheckBox>
 
-#include <GL/glut.h>
+#include <glut.h>
 
 #include "histogram_calc.h"
 #include "histogram_3d_view.h"
@@ -35,8 +35,12 @@ using std::signbit;
 using std::isinf;
 
 
-static float alpha = 0;
+static float alpha1 = 0;
 static float alpha2 = 0;
+static float alpha3 = 0;
+float scaleX = 1;
+float scaleY = 1;
+float scaleZ = 1;
 
 static GLfloat *vertices = nullptr;
 static GLfloat *colors = nullptr;
@@ -46,7 +50,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         : QGLWidget(p), hist_(nullptr), dat_(nullptr), dat_n_(0), spinning_(true) {
     auto update_timer = new QTimer(this);
     QObject::connect(update_timer, SIGNAL(timeout()), this, SLOT(updateGL())); //, Qt::QueuedConnection);
-    update_timer->start(100);
+    update_timer->start(10);
 
     auto layout = new QGridLayout(this);
     int r = 0;
@@ -149,7 +153,7 @@ void Histogram3dView::resizeGL(int /*w*/, int /*h*/) {
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
-    gluPerspective(20, width() / (float) height(), 5, 15);
+    gluPerspective(20, width() / (float) height(), 5, 100);
     glViewport(0, 0, width(), height());
 
     glMatrixMode(GL_MODELVIEW);
@@ -160,9 +164,12 @@ void Histogram3dView::paintGL() {
     glLoadIdentity();
 
     glTranslatef(0, 0, -10);
-    glRotatef(30, 1, 0, 0);
-    glRotatef(alpha, 0, 1, 0);
-    glRotatef(alpha2, 1, 0, 1);
+
+    glRotatef(360, 1, 0, 0);
+    glRotatef(alpha1, 1, 0, 0);
+    glRotatef(alpha2, 0, 1, 0);
+
+	glScalef(scaleX, scaleY, scaleZ);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -238,11 +245,101 @@ void Histogram3dView::paintGL() {
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    if (spinning_) {
-        alpha = alpha + 0.1 * 20;
-        alpha2 = alpha2 + 0.01 * 20;
-    }
+	//Check if high-order bit is set (1 << 15)
 
+	if (GetKeyState(VK_NUMPAD8) & 0x8000)
+	{
+		if (spinning_) {
+			alpha1 = alpha1 + -0.7 * 1;
+		}
+	}
+
+	if (GetKeyState(VK_NUMPAD5) & 0x8000)
+	{
+		if (spinning_) {
+			alpha1 = alpha1 + 0.7 * 1;
+		}
+	}
+
+	if (GetKeyState(VK_NUMPAD4) & 0x8000)
+	{
+		if (spinning_) {
+			alpha2 = alpha2 + -0.7 * 1;
+		}
+	}
+
+	if (GetKeyState(VK_NUMPAD6) & 0x8000)
+	{
+		if (spinning_) {
+			alpha2 = alpha2 + 0.7 * 1;
+		}
+	}
+
+	if (GetKeyState('W') & 0x8000)
+	{
+		if (spinning_) {
+			alpha1 = alpha1 + -0.7 * 1;
+		}
+	}
+
+	if (GetKeyState('S') & 0x8000)
+	{
+		if (spinning_) {
+			alpha1 = alpha1 + 0.7 * 1;
+		}
+	}
+
+	if (GetKeyState('A') & 0x8000)
+	{
+		if (spinning_) {
+			alpha2 = alpha2 + -0.7 * 1;
+		}
+	}
+
+	if (GetKeyState('D') & 0x8000)
+	{
+		if (spinning_) {
+			alpha2 = alpha2 + 0.7 * 1;
+		}
+	}
+
+	if (GetKeyState('Q') & 0x8000)
+	{
+		scaleX += -0.01;
+		scaleY += -0.01;
+		scaleZ += -0.01;
+	}
+	
+	if (GetKeyState('E') & 0x8000)
+	{
+		scaleX += 0.01;
+		scaleY += 0.01;
+		scaleZ += 0.01;
+	}
+
+	if (GetKeyState(VK_NUMPAD7) & 0x8000)
+	{
+		scaleX += -0.01;
+		scaleY += -0.01;
+		scaleZ += -0.01;
+	}
+
+	if (GetKeyState(VK_NUMPAD9) & 0x8000)
+	{
+		scaleX += 0.01;
+		scaleY += 0.01;
+		scaleZ += 0.01;
+	}
+
+	if (GetKeyState(VK_NUMPAD1) & 0x8000)
+	{
+		scaleZ += -0.01;
+	}
+
+	if (GetKeyState(VK_NUMPAD3) & 0x8000)
+	{
+		scaleZ += 0.01;
+	}
     glFlush();
 }
 
@@ -284,13 +381,13 @@ void Histogram3dView::parameters_changed() {
                 x = x / 255.;
                 y = y / 255.;
                 z = z / 255.;
-                /*
+                
                 if(x < -1 || x > 1.0 ||
                    y < -1 || y > 1.0 ||
                    z < -1 || z > 1.0) {
                   printf("Warning 3dpc %f %f %f\n", x, y, z);
                 }
-                */
+                
                 vertices[j * 3 + 0] = x * 2. - 1.;
                 vertices[j * 3 + 1] = y * 2. - 1.;
                 vertices[j * 3 + 2] = z * 2. - 1.;

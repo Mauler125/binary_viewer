@@ -26,6 +26,8 @@
 #include <QComboBox>
 #include <QPushButton>
 
+#include <stdlib.h>
+
 #include "dot_plot.h"
 
 using std::max;
@@ -236,26 +238,26 @@ void DotPlot::parameters_changed() {
         pts_i_ = pts_.size();
         int ii = 0;
         // Precompute some random values for sampling
-        std::vector<pair<int, int> > rand;
+        std::vector<pair<int, int> > random;
         while (pts_i_ > 0) {
             if ((ii++ % 100) == 0) {
                 {
                     int n = min(max_samples_->value(), bs);
 //            n = n * n;
-                    rand.clear();
-                    rand.reserve(n);
+                    random.clear();
+                    random.reserve(n);
                     printf("Generating %d points in range [0, %d-1] along the diagonal\n", n, bs);
                     for (int tt = 0; tt < n; tt++) {
-                        int a = random() % bs;
-                        rand.emplace_back(make_pair(a, a));
+                        int a = rand() % bs;
+                        random.emplace_back(make_pair(a, a));
                     }
                     int n2 = min(max_samples_->value(), bs * bs - bs);
                     printf("Generating %d points in range [0, %d-1] off the diagonal\n", n2, bs);
                     for (int tt = 0; tt < n2;) {
-                        int a = random() % bs;
-                        int b = random() % bs;
+                        int a = rand() % bs;
+                        int b = rand() % bs;
                         if (a == b) continue;
-                        rand.emplace_back(make_pair(a, b));
+                        random.emplace_back(make_pair(a, b));
                         tt++;
                     }
 //            for (int tt = 0; tt < n; tt++) {
@@ -266,7 +268,7 @@ void DotPlot::parameters_changed() {
 
 
 //            random_shuffle(rand.begin(), rand.end());
-            advance_mat(bs, rand);
+            advance_mat(bs, random);
         }
     }
     regen_image();

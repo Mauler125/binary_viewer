@@ -234,7 +234,7 @@ void hist_float_helper_3d(int *hist, T *dat_f, long n, int st) {
         if (isinf(dat_f[i + 1])) { if (signbit(dat_f[i + 1])) { a2 = 0; } else { a2 = 255; }}
         if (isinf(dat_f[i + 2])) { if (signbit(dat_f[i + 2])) { a3 = 0; } else { a3 = 255; }}
 
-/*
+
     if(a1 < 0 || a1 > 255) {
       printf("0 %d %f\n", a1, dat_f[i+0]);
     }
@@ -244,7 +244,7 @@ void hist_float_helper_3d(int *hist, T *dat_f, long n, int st) {
     if(a2 < 0 || a2 > 255) {
       printf("1 %d %f %d %d\n", a2, dat_f[i+1], isnan(dat_f[i+1]), dat_f[i+1] < 0);
     }
-*/
+
 
         if (a1 < 0) a1 = 0;
         if (a2 < 0) a2 = 0;
@@ -396,7 +396,7 @@ float *generate_entropy(const unsigned char *dat_u8, long n, long &rv_len, int b
 
         int di = is / bs;
         if (di >= ddn) {
-            //printf("%d %d %d %d\n", is, bs, is/bs, n);
+            printf("%d %d %d %d\n", is, bs, is/bs, n);
             continue;
         }
 

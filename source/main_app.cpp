@@ -27,6 +27,9 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QSettings>
+#include <QShortcut>
+#include <QStyleFactory>
+#include <QApplication>
 
 #include "main_app.h"
 #include "binary_viewer.h"
@@ -40,6 +43,128 @@
 
 static int scroller_w = 16 * 8;
 
+void MainApp::toggleFullScreen() {
+	if (!isFullScreen()) {
+		return_to_maximized = isMaximized();
+	}
+	if (isFullScreen() && !return_to_maximized) {
+		showNormal();
+	}
+	else if (isFullScreen() && return_to_maximized) {
+		showMaximized();
+	}
+	else {
+		showFullScreen();
+	}
+}
+
+void MainApp::toggleQDarkMode() {
+
+	QFile f(":/qdarkstyle/style.qss");
+
+	if (!f.exists()) {
+		printf("Unable to set stylesheet, file not found\n");
+	}
+	else {
+		f.open(QFile::ReadOnly | QFile::Text);
+		QTextStream ts(&f);
+		qApp->setStyleSheet(ts.readAll());
+	}
+}
+
+void MainApp::toggleLightMode()
+{
+	// Increase the "+0" int value to increase the font size for better reading
+	QFont defaultFont = QApplication::font();
+	defaultFont.setPointSize(defaultFont.pointSize() + 0);
+
+	// Modify palette to light
+	QPalette lightPalette;
+	lightPalette.setColor(QPalette::Window, QColor(230, 230, 230));
+	lightPalette.setColor(QPalette::WindowText, Qt::black);
+	lightPalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(127, 127, 127));
+	lightPalette.setColor(QPalette::Base, QColor(255, 255, 255));
+	lightPalette.setColor(QPalette::AlternateBase, QColor(255, 255, 255));
+	lightPalette.setColor(QPalette::ToolTipBase, Qt::black);
+	lightPalette.setColor(QPalette::ToolTipText, QColor(255, 255, 255));
+	lightPalette.setColor(QPalette::Text, QColor(0, 0, 0));
+	lightPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
+	lightPalette.setColor(QPalette::Dark, QColor(200, 200, 200));
+	lightPalette.setColor(QPalette::Shadow, QColor(150, 150, 150));
+	lightPalette.setColor(QPalette::Button, QColor(240, 240, 240));
+	lightPalette.setColor(QPalette::ButtonText, QColor(0, 0, 0));
+	lightPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(127, 127, 127));
+	lightPalette.setColor(QPalette::BrightText, Qt::red);
+	lightPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+	lightPalette.setColor(QPalette::Highlight, QColor(220, 220, 220));
+	lightPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(170, 170, 170));
+	lightPalette.setColor(QPalette::HighlightedText, Qt::black);
+	lightPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(127, 127, 127));
+
+	qApp->setFont(defaultFont);
+	qApp->setPalette(lightPalette);
+	qApp->setStyle(QStyleFactory::create("Fusion"));
+	qApp->setStyleSheet("");
+
+	QFile f("qinterface//light.css");
+	if (!f.exists())
+	{
+		printf("Unable to set light stylesheet, file not found\n");
+	}
+	else
+	{
+		f.open(QFile::ReadOnly | QFile::Text);
+		QTextStream ts(&f);
+		qApp->setStyleSheet(ts.readAll());
+	}
+}
+
+void MainApp::toggleDarkMode()
+{
+	// Increase the "+0" int value to increase the font size for better reading
+	QFont defaultFont = QApplication::font();
+	defaultFont.setPointSize(defaultFont.pointSize() + 0);
+
+	// Modify palette to dark
+	QPalette darkPalette;
+	darkPalette.setColor(QPalette::Window, QColor(32, 34, 38));
+	darkPalette.setColor(QPalette::WindowText, Qt::white);
+	darkPalette.setColor(QPalette::Disabled, QPalette::WindowText, QColor(127, 127, 127));
+	darkPalette.setColor(QPalette::Base, QColor(42, 42, 42));
+	darkPalette.setColor(QPalette::AlternateBase, QColor(66, 66, 66));
+	darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+	darkPalette.setColor(QPalette::ToolTipText, QColor(200, 200, 200));
+	darkPalette.setColor(QPalette::Text, QColor(200, 200, 200));
+	darkPalette.setColor(QPalette::Disabled, QPalette::Text, QColor(127, 127, 127));
+	darkPalette.setColor(QPalette::Dark, QColor(35, 35, 35));
+	darkPalette.setColor(QPalette::Shadow, QColor(20, 20, 20));
+	darkPalette.setColor(QPalette::Button, QColor(36, 38, 40));
+	darkPalette.setColor(QPalette::ButtonText, QColor(200, 200, 200));
+	darkPalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor(127, 127, 127));
+	darkPalette.setColor(QPalette::BrightText, Qt::red);
+	darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+	darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+	darkPalette.setColor(QPalette::Disabled, QPalette::Highlight, QColor(80, 80, 80));
+	darkPalette.setColor(QPalette::HighlightedText, Qt::white);
+	darkPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, QColor(127, 127, 127));
+
+	qApp->setFont(defaultFont);
+	qApp->setPalette(darkPalette);
+	qApp->setStyle(QStyleFactory::create("Fusion"));
+	qApp->setStyleSheet("");
+
+	QFile f("qinterface//dark.css");
+	if (!f.exists())
+	{
+		printf("Unable to set dark stylesheet, file not found\n");
+	}
+	else
+	{
+		f.open(QFile::ReadOnly | QFile::Text);
+		QTextStream ts(&f);
+		qApp->setStyleSheet(ts.readAll());
+	}
+}
 
 MainApp::MainApp(QWidget *p)
         : QDialog(p), cur_file_(-1), bin_(nullptr), bin_len_(0), start_(0), end_(0) {
@@ -47,26 +172,37 @@ MainApp::MainApp(QWidget *p)
 
     auto top_layout = new QGridLayout;
 
+    new QShortcut(QKeySequence(Qt::Key_F11), this, SLOT(toggleFullScreen()));
+	new QShortcut(QKeySequence(Qt::Key_F10), this, SLOT(toggleQDarkMode()));
+	new QShortcut(QKeySequence(Qt::Key_F9), this, SLOT(toggleLightMode()));	
+	new QShortcut(QKeySequence(Qt::Key_F8), this, SLOT(toggleDarkMode()));
+
     {
         auto layout = new QHBoxLayout;
         {
-            auto pb = new QPushButton("Load file");
+            auto pb = new QPushButton("Load File");
             pb->setFixedSize(pb->sizeHint());
             connect(pb, SIGNAL(clicked()), SLOT(loadFile()));
             layout->addWidget(pb);
         }
         {
-            auto pb = new QPushButton("Prev");
+            auto pb = new QPushButton("Prev File");
             pb->setFixedSize(pb->sizeHint());
             connect(pb, SIGNAL(clicked()), SLOT(prevFile()));
             layout->addWidget(pb);
         }
         {
-            auto pb = new QPushButton("Next");
+            auto pb = new QPushButton("Next File");
             pb->setFixedSize(pb->sizeHint());
             connect(pb, SIGNAL(clicked()), SLOT(nextFile()));
             layout->addWidget(pb);
         }
+		{
+			auto pb = new QPushButton("Full Screen");
+			pb->setFixedSize(pb->sizeHint());
+			connect(pb, SIGNAL(clicked()), SLOT(toggleFullScreen()));
+			layout->addWidget(pb);
+		}
         top_layout->addLayout(layout, 0, 0);
     }
 

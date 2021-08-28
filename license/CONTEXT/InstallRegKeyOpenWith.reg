@@ -1,0 +1,9 @@
+Windows Registry Editor Version 5.00 
+  
+; Install Optional Context Menu Entries
+ 
+[HKEY_CLASSES_ROOT\*\shell\Open_with_BinViewer] 
+@="Open with Bin Viewer" 
+  
+[HKEY_CLASSES_ROOT\*\shell\Open_with_BinViewer\command] 
+@="\"C:\\Program Files\\Qt5BinVis\\qt5binvis.exe\" \"%1\""

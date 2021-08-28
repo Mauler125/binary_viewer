@@ -58,8 +58,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    a.showFullScreen();
     a.setWindowTitle(base_caption);
+
+	a.resize(1200, 700);
+	a.show();
+	
+	a.setWindowFlags(Qt::Window);
+	a.show();
 
     return a.exec();
 }
