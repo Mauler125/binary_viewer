@@ -174,51 +174,51 @@ void ImageView::parameters_changed() {
 
     dtype_t t;
     QString s = type_->currentText();
-    if (s == "RGB 8") t = rgb8;
-    else if (s == "RGB 12") t = rgb12;
-    else if (s == "RGB 16") t = rgb16;
-    else if (s == "RGBA 8") t = rgba8;
-    else if (s == "RGBA 12") t = rgba12;
-    else if (s == "RGBA 16") t = rgba16;
-    else if (s == "BGR 8") t = bgr8;
-    else if (s == "BGR 12") t = bgr12;
-    else if (s == "BGR 16") t = bgr16;
-    else if (s == "BGRA 8") t = bgra8;
-    else if (s == "BGRA 12") t = bgra12;
-    else if (s == "BGRA 16") t = bgra16;
-    else if (s == "Grey 8") t = grey8;
-    else if (s == "Grey 12") t = grey12;
-    else if (s == "Grey 16") t = grey16;
-    else if (s == "Bayer 8 - 0: 0 1 2 3") t = bayer8_0;
-    else if (s == "Bayer 8 - 1: 0 1 3 2") t = bayer8_1;
-    else if (s == "Bayer 8 - 2: 0 2 1 3") t = bayer8_2;
-    else if (s == "Bayer 8 - 3: 0 2 3 1") t = bayer8_3;
-    else if (s == "Bayer 8 - 4: 0 3 1 2") t = bayer8_4;
-    else if (s == "Bayer 8 - 5: 0 3 2 1") t = bayer8_5;
-    else if (s == "Bayer 8 - 6: 1 0 2 3") t = bayer8_6;
-    else if (s == "Bayer 8 - 7: 1 0 3 2") t = bayer8_7;
-    else if (s == "Bayer 8 - 8: 1 2 0 3") t = bayer8_8;
-    else if (s == "Bayer 8 - 9: 1 2 3 0") t = bayer8_9;
-    else if (s == "Bayer 8 - 10: 1 3 0 2") t = bayer8_10;
-    else if (s == "Bayer 8 - 11: 1 3 2 0") t = bayer8_11;
-    else if (s == "Bayer 8 - 12: 2 0 1 3") t = bayer8_12;
-    else if (s == "Bayer 8 - 13: 2 0 3 1") t = bayer8_13;
-    else if (s == "Bayer 8 - 14: 2 1 0 3") t = bayer8_14;
-    else if (s == "Bayer 8 - 15: 2 1 3 0") t = bayer8_15;
-    else if (s == "Bayer 8 - 16: 2 3 0 1") t = bayer8_16;
-    else if (s == "Bayer 8 - 17: 2 3 1 0") t = bayer8_17;
-    else if (s == "Bayer 8 - 18: 3 0 1 2") t = bayer8_18;
-    else if (s == "Bayer 8 - 19: 3 0 2 1") t = bayer8_19;
-    else if (s == "Bayer 8 - 20: 3 1 0 2") t = bayer8_20;
-    else if (s == "Bayer 8 - 21: 3 1 2 0") t = bayer8_21;
-    else if (s == "Bayer 8 - 22: 3 2 0 1") t = bayer8_22;
-    else if (s == "Bayer 8 - 23: 3 2 1 0") t = bayer8_23;
-    else t = none;
+    if (s == "RGB 8") t = dtype_t::RGB8;
+    else if (s == "RGB 12") t = dtype_t::RGB12;
+    else if (s == "RGB 16") t = dtype_t::RGB16;
+    else if (s == "RGBA 8") t = dtype_t::RGBA8;
+    else if (s == "RGBA 12") t = dtype_t::RGBA12;
+    else if (s == "RGBA 16") t = dtype_t::RGBA16;
+    else if (s == "BGR 8") t = dtype_t::BGR8;
+    else if (s == "BGR 12") t = dtype_t::BGR12;
+    else if (s == "BGR 16") t = dtype_t::BGR16;
+    else if (s == "BGRA 8") t = dtype_t::BGRA8;
+    else if (s == "BGRA 12") t = dtype_t::BGRA12;
+    else if (s == "BGRA 16") t = dtype_t::BGRA16;
+    else if (s == "Grey 8") t = dtype_t::GREY8;
+    else if (s == "Grey 12") t = dtype_t::GREY12;
+    else if (s == "Grey 16") t = dtype_t::GREY16;
+    else if (s == "Bayer 8 - 0: 0 1 2 3") t = dtype_t::BAYER8_0;
+    else if (s == "Bayer 8 - 1: 0 1 3 2") t = dtype_t::BAYER8_1;
+    else if (s == "Bayer 8 - 2: 0 2 1 3") t = dtype_t::BAYER8_2;
+    else if (s == "Bayer 8 - 3: 0 2 3 1") t = dtype_t::BAYER8_3;
+    else if (s == "Bayer 8 - 4: 0 3 1 2") t = dtype_t::BAYER8_4;
+    else if (s == "Bayer 8 - 5: 0 3 2 1") t = dtype_t::BAYER8_5;
+    else if (s == "Bayer 8 - 6: 1 0 2 3") t = dtype_t::BAYER8_6;
+    else if (s == "Bayer 8 - 7: 1 0 3 2") t = dtype_t::BAYER8_7;
+    else if (s == "Bayer 8 - 8: 1 2 0 3") t = dtype_t::BAYER8_8;
+    else if (s == "Bayer 8 - 9: 1 2 3 0") t = dtype_t::BAYER8_9;
+    else if (s == "Bayer 8 - 10: 1 3 0 2") t = dtype_t::BAYER8_10;
+    else if (s == "Bayer 8 - 11: 1 3 2 0") t = dtype_t::BAYER8_11;
+    else if (s == "Bayer 8 - 12: 2 0 1 3") t = dtype_t::BAYER8_12;
+    else if (s == "Bayer 8 - 13: 2 0 3 1") t = dtype_t::BAYER8_13;
+    else if (s == "Bayer 8 - 14: 2 1 0 3") t = dtype_t::BAYER8_14;
+    else if (s == "Bayer 8 - 15: 2 1 3 0") t = dtype_t::BAYER8_15;
+    else if (s == "Bayer 8 - 16: 2 3 0 1") t = dtype_t::BAYER8_16;
+    else if (s == "Bayer 8 - 17: 2 3 1 0") t = dtype_t::BAYER8_17;
+    else if (s == "Bayer 8 - 18: 3 0 1 2") t = dtype_t::BAYER8_18;
+    else if (s == "Bayer 8 - 19: 3 0 2 1") t = dtype_t::BAYER8_19;
+    else if (s == "Bayer 8 - 20: 3 1 0 2") t = dtype_t::BAYER8_20;
+    else if (s == "Bayer 8 - 21: 3 1 2 0") t = dtype_t::BAYER8_21;
+    else if (s == "Bayer 8 - 22: 3 2 0 1") t = dtype_t::BAYER8_22;
+    else if (s == "Bayer 8 - 23: 3 2 1 0") t = dtype_t::BAYER8_23;
+    else t = dtype_t::NONE;
 
     QImage img;
 
     switch (t) {
-        case rgb8: {
+        case dtype_t::RGB8: {
             auto dat_u8 = dat_ + offset;
             int n = (dat_n_ - offset) / 1 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -233,7 +233,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case rgb12: {
+        case dtype_t::RGB12: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -248,7 +248,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case rgb16: {
+        case dtype_t::RGB16: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -263,7 +263,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case rgba8: {
+        case dtype_t::RGBA8: {
             auto dat_u8 = (const unsigned char *) (dat_ + offset);
             int n = (dat_n_ - offset) / 1 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -278,7 +278,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case rgba12: {
+        case dtype_t::RGBA12: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -293,7 +293,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case rgba16: {
+        case dtype_t::RGBA16: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -308,7 +308,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bgr8: {
+        case dtype_t::BGR8: {
             auto dat_u8 = (const unsigned char *) (dat_ + offset);
             int n = (dat_n_ - offset) / 1 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -323,7 +323,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bgr12: {
+        case dtype_t::BGR12: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -338,7 +338,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bgr16: {
+        case dtype_t::BGR16: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -353,7 +353,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bgra8: {
+        case dtype_t::BGRA8: {
             auto dat_u8 = (const unsigned char *) (dat_ + offset);
             int n = (dat_n_ - offset) / 1 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -368,7 +368,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bgra12: {
+        case dtype_t::BGRA12: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -383,7 +383,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bgra16: {
+        case dtype_t::BGRA16: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -398,7 +398,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case grey8: {
+        case dtype_t::GREY8: {
             auto dat_u8 = (const unsigned char *) (dat_ + offset);
             int n = (dat_n_ - offset) / 1;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -414,7 +414,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case grey12: {
+        case dtype_t::GREY12: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -430,7 +430,7 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case grey16: {
+        case dtype_t::GREY16: {
             auto dat_u16 = (const unsigned short *) (dat_ + offset);
             int n = (dat_n_ - offset) / 2;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
@@ -446,30 +446,30 @@ void ImageView::parameters_changed() {
             }
         }
             break;
-        case bayer8_0:
-        case bayer8_1:
-        case bayer8_2:
-        case bayer8_3:
-        case bayer8_4:
-        case bayer8_5:
-        case bayer8_6:
-        case bayer8_7:
-        case bayer8_8:
-        case bayer8_9:
-        case bayer8_10:
-        case bayer8_11:
-        case bayer8_12:
-        case bayer8_13:
-        case bayer8_14:
-        case bayer8_15:
-        case bayer8_16:
-        case bayer8_17:
-        case bayer8_18:
-        case bayer8_19:
-        case bayer8_20:
-        case bayer8_21:
-        case bayer8_22:
-        case bayer8_23: {
+        case dtype_t::BAYER8_0:
+        case dtype_t::BAYER8_1:
+        case dtype_t::BAYER8_2:
+        case dtype_t::BAYER8_3:
+        case dtype_t::BAYER8_4:
+        case dtype_t::BAYER8_5:
+        case dtype_t::BAYER8_6:
+        case dtype_t::BAYER8_7:
+        case dtype_t::BAYER8_8:
+        case dtype_t::BAYER8_9:
+        case dtype_t::BAYER8_10:
+        case dtype_t::BAYER8_11:
+        case dtype_t::BAYER8_12:
+        case dtype_t::BAYER8_13:
+        case dtype_t::BAYER8_14:
+        case dtype_t::BAYER8_15:
+        case dtype_t::BAYER8_16:
+        case dtype_t::BAYER8_17:
+        case dtype_t::BAYER8_18:
+        case dtype_t::BAYER8_19:
+        case dtype_t::BAYER8_20:
+        case dtype_t::BAYER8_21:
+        case dtype_t::BAYER8_22:
+        case dtype_t::BAYER8_23: {
             int h = dat_n_ / w + 1;
             //int bayer_n = w * h;
 
@@ -479,76 +479,76 @@ void ImageView::parameters_changed() {
             auto rgb = new unsigned char[w * h * 3];
             int perm = 0;
             switch (t) {
-                case bayer8_0:
+                case dtype_t::BAYER8_0:
                     perm = 0;
                     break;
-                case bayer8_1:
+                case dtype_t::BAYER8_1:
                     perm = 1;
                     break;
-                case bayer8_2:
+                case dtype_t::BAYER8_2:
                     perm = 2;
                     break;
-                case bayer8_3:
+                case dtype_t::BAYER8_3:
                     perm = 3;
                     break;
-                case bayer8_4:
+                case dtype_t::BAYER8_4:
                     perm = 4;
                     break;
-                case bayer8_5:
+                case dtype_t::BAYER8_5:
                     perm = 5;
                     break;
-                case bayer8_6:
+                case dtype_t::BAYER8_6:
                     perm = 6;
                     break;
-                case bayer8_7:
+                case dtype_t::BAYER8_7:
                     perm = 7;
                     break;
-                case bayer8_8:
+                case dtype_t::BAYER8_8:
                     perm = 8;
                     break;
-                case bayer8_9:
+                case dtype_t::BAYER8_9:
                     perm = 9;
                     break;
-                case bayer8_10:
+                case dtype_t::BAYER8_10:
                     perm = 10;
                     break;
-                case bayer8_11:
+                case dtype_t::BAYER8_11:
                     perm = 11;
                     break;
-                case bayer8_12:
+                case dtype_t::BAYER8_12:
                     perm = 12;
                     break;
-                case bayer8_13:
+                case dtype_t::BAYER8_13:
                     perm = 13;
                     break;
-                case bayer8_14:
+                case dtype_t::BAYER8_14:
                     perm = 14;
                     break;
-                case bayer8_15:
+                case dtype_t::BAYER8_15:
                     perm = 15;
                     break;
-                case bayer8_16:
+                case dtype_t::BAYER8_16:
                     perm = 16;
                     break;
-                case bayer8_17:
+                case dtype_t::BAYER8_17:
                     perm = 17;
                     break;
-                case bayer8_18:
+                case dtype_t::BAYER8_18:
                     perm = 18;
                     break;
-                case bayer8_19:
+                case dtype_t::BAYER8_19:
                     perm = 19;
                     break;
-                case bayer8_20:
+                case dtype_t::BAYER8_20:
                     perm = 20;
                     break;
-                case bayer8_21:
+                case dtype_t::BAYER8_21:
                     perm = 21;
                     break;
-                case bayer8_22:
+                case dtype_t::BAYER8_22:
                     perm = 22;
                     break;
-                case bayer8_23:
+                case dtype_t::BAYER8_23:
                     perm = 23;
                     break;
             }

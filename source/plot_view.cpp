@@ -27,7 +27,7 @@ using std::max;
 
 PlotView::PlotView(QWidget *p)
         : QLabel(p),
-          m1_(0.), m2_(1.), px_(-1), py_(-1), ind_(0), s_(none), allow_selection_(true) {
+          m1_(0.), m2_(1.), px_(-1), py_(-1), ind_(0), s_(allow_selection_::NONE), allow_selection_(true) {
 }
 
 void PlotView::enableSelection(bool v) {
@@ -165,13 +165,13 @@ void PlotView::mousePressEvent(QMouseEvent *e) {
     float yp = y / float(height());
 
     if (yp > m1_ && (yp - m1_) < .01) {
-        s_ = m1_moving;
+        s_ = allow_selection_::M1_MOVING;
     } else if (yp < m2_ && (m2_ - yp) < .01) {
-        s_ = m2_moving;
+        s_ = allow_selection_::M2_MOVING;
     } else if (m1_ < yp && yp < m2_) {
-        s_ = m12_moving;
+        s_ = allow_selection_::M12_MOVING;
     } else {
-        s_ = none;
+        s_ = allow_selection_::NONE;
     }
 
     px_ = x;
@@ -181,7 +181,7 @@ void PlotView::mousePressEvent(QMouseEvent *e) {
 void PlotView::mouseMoveEvent(QMouseEvent *e) {
     e->accept();
 
-    if (s_ == none) return;
+    if (s_ == allow_selection_::NONE) return;
 
     int x = e->pos().x();
     int y = e->pos().y();
@@ -197,11 +197,11 @@ void PlotView::mouseMoveEvent(QMouseEvent *e) {
 
     float m1 = m1_;
     float m2 = m2_;
-    if (s_ == m1_moving) {
+    if (s_ == allow_selection_::M1_MOVING) {
         m1 = y / float(h);
-    } else if (s_ == m2_moving) {
+    } else if (s_ == allow_selection_::M2_MOVING) {
         m2 = y / float(h);
-    } else if (s_ == m12_moving) {
+    } else if (s_ == allow_selection_::M12_MOVING) {
         float dy = (y - py_) / float(h);
         m1 += dy;
         m2 += dy;
@@ -243,5 +243,5 @@ void PlotView::mouseReleaseEvent(QMouseEvent *e) {
 
     px_ = -1;
     py_ = -1;
-    s_ = none;
+    s_ = allow_selection_::NONE;
 }

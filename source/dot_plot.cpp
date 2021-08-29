@@ -33,7 +33,7 @@
 using std::max;
 using std::min;
 using std::vector;
-using std::random_shuffle;
+using std::shuffle;
 using std::pair;
 using std::make_pair;
 
@@ -190,6 +190,9 @@ void DotPlot::setData(const unsigned char *dat, long n) {
 }
 
 void DotPlot::parameters_changed() {
+    std::random_device rd;
+    std::mt19937 g(rd());
+
     puts("called");
 
     long mdw = min(dat_n_, (long) width_->value());
@@ -220,7 +223,7 @@ void DotPlot::parameters_changed() {
 //        pts_.emplace_back(make_pair(i, i));
     }
 #endif
-    random_shuffle(pts_.begin(), pts_.end());
+    shuffle(pts_.begin(), pts_.end(), g);
 
     {
 //        float sf = 1.f;

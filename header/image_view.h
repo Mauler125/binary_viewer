@@ -57,32 +57,32 @@ protected:
 
     void update_pix();
 
-    typedef enum {
-        none, rgb8, rgb12, rgb16, rgba8, rgba12, rgba16, bgr8, bgr12, bgr16, bgra8, bgra12, bgra16, grey8, grey12, grey16,
-        bayer8_0,
-        bayer8_1,
-        bayer8_2,
-        bayer8_3,
-        bayer8_4,
-        bayer8_5,
-        bayer8_6,
-        bayer8_7,
-        bayer8_8,
-        bayer8_9,
-        bayer8_10,
-        bayer8_11,
-        bayer8_12,
-        bayer8_13,
-        bayer8_14,
-        bayer8_15,
-        bayer8_16,
-        bayer8_17,
-        bayer8_18,
-        bayer8_19,
-        bayer8_20,
-        bayer8_21,
-        bayer8_22,
-        bayer8_23
+    typedef enum class dtype_t {
+        NONE, RGB8, RGB12, RGB16, RGBA8, RGBA12, RGBA16, BGR8, BGR12, BGR16, BGRA8, BGRA12, BGRA16, GREY8, GREY12, GREY16,
+        BAYER8_0,
+        BAYER8_1,
+        BAYER8_2,
+        BAYER8_3,
+        BAYER8_4,
+        BAYER8_5,
+        BAYER8_6,
+        BAYER8_7,
+        BAYER8_8,
+        BAYER8_9,
+        BAYER8_10,
+        BAYER8_11,
+        BAYER8_12,
+        BAYER8_13,
+        BAYER8_14,
+        BAYER8_15,
+        BAYER8_16,
+        BAYER8_17,
+        BAYER8_18,
+        BAYER8_19,
+        BAYER8_20,
+        BAYER8_21,
+        BAYER8_22,
+        BAYER8_23
     } dtype_t;
 
     QSpinBox *offset_, *width_;

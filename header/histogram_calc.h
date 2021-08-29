@@ -22,9 +22,16 @@
 
 #include <string>
 
-typedef enum {
-    none, u8, u12, u16, u32, u64, f32, f64
-} histo_dtype_t;
+typedef enum class histo_dtype_t {
+    NONE,
+    U8,
+    U12,
+    U16,
+    U32,
+    U64,
+    F32,
+    F64
+};
 
 histo_dtype_t string_to_histo_dtype(const std::string &s);
 

@@ -24,6 +24,8 @@
 #include <QSpinBox>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QPushButton>
+#include <QKeyEvent>
 
 #include <glut.h>
 
@@ -34,17 +36,19 @@ using std::isnan;
 using std::signbit;
 using std::isinf;
 
+static GLfloat *vertices = nullptr;
+static GLfloat *colors = nullptr;
 
-static float alpha1 = 0;
-static float alpha2 = 0;
-static float alpha3 = 0;
+float alpha1 = 0;
+float alpha2 = 0;
+float alpha3 = 0;
 float scaleX = 1;
 float scaleY = 1;
 float scaleZ = 1;
 
-static GLfloat *vertices = nullptr;
-static GLfloat *colors = nullptr;
 int n_vertices = 0;
+bool g_bGLInitialized = false;
+bool g_bColorEnabled = false;
 
 Histogram3dView::Histogram3dView(QWidget *p)
         : QGLWidget(p), hist_(nullptr), dat_(nullptr), dat_n_(0), spinning_(true) {
@@ -87,7 +91,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
     r++;
 
     {
-        auto l = new QLabel("Type");
+        auto l = new QLabel("Histogram-Type");
         l->setFixedSize(l->sizeHint());
         layout->addWidget(l, r, 0);
     }
@@ -122,6 +126,42 @@ Histogram3dView::Histogram3dView(QWidget *p)
     }
     r++;
 
+    {
+        auto l = new QLabel("Histogram-Color");
+        l->setFixedSize(l->sizeHint());
+        layout->addWidget(l, r, 0);
+    }
+    {
+        auto cb = new QCheckBox;
+        cb->setFixedSize(cb->sizeHint());
+        cb->setChecked(false);
+        color_ = cb;
+        layout->addWidget(cb, r, 1);
+    }
+    r++;
+
+    {
+        auto l = new QLabel("Anti-Aliasing");
+        l->setFixedSize(l->sizeHint());
+        layout->addWidget(l, r, 0);
+    }
+    {
+        auto cb = new QCheckBox;
+        cb->setFixedSize(cb->sizeHint());
+        cb->setChecked(false);
+        antialias_ = cb;
+        layout->addWidget(cb, r, 1);
+    }
+    r++;
+
+    {
+        auto pb = new QPushButton("Resample");
+        pb->setFixedSize(pb->sizeHint());
+        layout->addWidget(pb, r, 0);
+        QObject::connect(pb, SIGNAL(clicked()), this, SLOT(parameters_changed()));
+    }
+    r++;
+
     layout->setColumnStretch(2, 1);
     layout->setRowStretch(r, 1);
 
@@ -129,6 +169,8 @@ Histogram3dView::Histogram3dView(QWidget *p)
     QObject::connect(scale_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
     QObject::connect(type_, SIGNAL(currentIndexChanged(int)), this, SLOT(regen_histo()));
     QObject::connect(overlap_, SIGNAL(toggled(bool)), this, SLOT(regen_histo()));
+    QObject::connect(color_, SIGNAL(toggled(bool)), this, SLOT(color_histo()));
+    QObject::connect(antialias_, SIGNAL(toggled(bool)), this, SLOT(initializeGL()));
 }
 
 Histogram3dView::~Histogram3dView() {
@@ -145,16 +187,44 @@ void Histogram3dView::setData(const unsigned char *dat, long n) {
 }
 
 void Histogram3dView::initializeGL() {
+
+    static bool glSwitch = false;
     glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
+
+    if (!glSwitch)
+    {
+        glDisable(GL_POINT_SMOOTH);
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        glDisable(GL_LINE_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glDisable(GL_POLYGON_SMOOTH);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+        glDisable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    else
+    {
+        glEnable(GL_POINT_SMOOTH);
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        glEnable(GL_LINE_SMOOTH);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+        glEnable(GL_POLYGON_SMOOTH);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    glSwitch = !glSwitch;
+    g_bGLInitialized = true;
 }
 
 void Histogram3dView::resizeGL(int /*w*/, int /*h*/) {
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
-    gluPerspective(20, width() / (float) height(), 5, 100);
-    glViewport(0, 0, width(), height());
+    gluPerspective(20, (float)width() / (float)height(), 5, 100);
+    glViewport(0, 0, (float)width(), (float)height());
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -246,101 +316,115 @@ void Histogram3dView::paintGL() {
     glDisableClientState(GL_VERTEX_ARRAY);
 
 	//Check if high-order bit is set (1 << 15)
+    //WINDOWS-ONLY
 
-	if (GetKeyState(VK_NUMPAD8) & 0x8000)
-	{
-		if (spinning_) {
-			alpha1 = alpha1 + -0.7 * 1;
-		}
-	}
+    if (GetKeyState(VK_NUMPAD8) & 0x8000) {
+        if (spinning_) {
+            alpha1 = alpha1 + -0.7 * 1;
+        }
+    }
 
-	if (GetKeyState(VK_NUMPAD5) & 0x8000)
-	{
-		if (spinning_) {
-			alpha1 = alpha1 + 0.7 * 1;
-		}
-	}
+    if (GetKeyState(VK_NUMPAD2) & 0x8000) {
+        if (spinning_) {
+            alpha1 = alpha1 + 0.7 * 1;
+        }
+    }
 
-	if (GetKeyState(VK_NUMPAD4) & 0x8000)
-	{
-		if (spinning_) {
-			alpha2 = alpha2 + -0.7 * 1;
-		}
-	}
+    if (GetKeyState(VK_NUMPAD4) & 0x8000) {
+        if (spinning_) {
+            alpha2 = alpha2 + -0.7 * 1;
+        }
+    }
 
-	if (GetKeyState(VK_NUMPAD6) & 0x8000)
-	{
-		if (spinning_) {
-			alpha2 = alpha2 + 0.7 * 1;
-		}
-	}
+    if (GetKeyState(VK_NUMPAD6) & 0x8000) {
+        if (spinning_) {
+            alpha2 = alpha2 + 0.7 * 1;
+        }
+    }
 
-	if (GetKeyState('W') & 0x8000)
-	{
-		if (spinning_) {
-			alpha1 = alpha1 + -0.7 * 1;
-		}
-	}
+    if (GetKeyState(VK_NUMPAD5) & 0x8000) {
+        if (spinning_) {
+            alpha1 = alpha1 + 0.7 * 1;
+        }
+    }
 
-	if (GetKeyState('S') & 0x8000)
-	{
-		if (spinning_) {
-			alpha1 = alpha1 + 0.7 * 1;
-		}
-	}
+    if (GetKeyState('W') & 0x8000) {
+        if (spinning_) {
+            alpha1 = alpha1 + -0.7 * 1;
+        }
+    }
 
-	if (GetKeyState('A') & 0x8000)
-	{
-		if (spinning_) {
-			alpha2 = alpha2 + -0.7 * 1;
-		}
-	}
+    if (GetKeyState('S') & 0x8000) {
+        if (spinning_) {
+            alpha1 = alpha1 + 0.7 * 1;
+        }
+    }
 
-	if (GetKeyState('D') & 0x8000)
-	{
-		if (spinning_) {
-			alpha2 = alpha2 + 0.7 * 1;
-		}
-	}
+    if (GetKeyState('A') & 0x8000) {
+        if (spinning_) {
+            alpha2 = alpha2 + -0.7 * 1;
+        }
+    }
 
-	if (GetKeyState('Q') & 0x8000)
-	{
-		scaleX += -0.01;
-		scaleY += -0.01;
-		scaleZ += -0.01;
-	}
-	
-	if (GetKeyState('E') & 0x8000)
-	{
-		scaleX += 0.01;
-		scaleY += 0.01;
-		scaleZ += 0.01;
-	}
+    if (GetKeyState('D') & 0x8000) {
+        if (spinning_) {
+            alpha2 = alpha2 + 0.7 * 1;
+        }
+    }
 
-	if (GetKeyState(VK_NUMPAD7) & 0x8000)
-	{
-		scaleX += -0.01;
-		scaleY += -0.01;
-		scaleZ += -0.01;
-	}
+    if (GetKeyState('Q') & 0x8000) {
+        if (scaleX >= 0.05) {
+            scaleX += -0.01;
+        }
+        if (scaleY >= 0.05) {
+            scaleY += -0.01;
+        }
+        if (scaleZ >= 0.05) {
+            scaleZ += -0.01;
+        }
+    }
 
-	if (GetKeyState(VK_NUMPAD9) & 0x8000)
-	{
-		scaleX += 0.01;
-		scaleY += 0.01;
-		scaleZ += 0.01;
-	}
+    if (GetKeyState('E') & 0x8000) {
+        scaleX += 0.01;
+        scaleY += 0.01;
+        scaleZ += 0.01;
+    }
 
-	if (GetKeyState(VK_NUMPAD1) & 0x8000)
-	{
-		scaleZ += -0.01;
-	}
+    if (GetKeyState(VK_NUMPAD7) & 0x8000) {
+        if (scaleX >= 0.05) {
+            scaleX += -0.01;
+        }
+        if (scaleY >= 0.05) {
+            scaleY += -0.01;
+        }
+        if (scaleZ >= 0.05) {
+            scaleZ += -0.01;
+        }
+    }
 
-	if (GetKeyState(VK_NUMPAD3) & 0x8000)
-	{
-		scaleZ += 0.01;
-	}
+    if (GetKeyState(VK_NUMPAD9) & 0x8000) {
+        scaleX += 0.01;
+        scaleY += 0.01;
+        scaleZ += 0.01;
+    }
+
+    if (GetKeyState(VK_NUMPAD1) & 0x8000) {
+        if (scaleZ >= 0.05)
+        {
+            scaleZ += -0.01;
+        }
+    }
+
+    if (GetKeyState(VK_NUMPAD3) & 0x8000) {
+        scaleZ += 0.01;
+    }
+    //END WINDOWS-ONLY
     glFlush();
+}
+
+void Histogram3dView::color_histo() {
+    g_bColorEnabled = !g_bColorEnabled;
+    regen_histo();
 }
 
 void Histogram3dView::regen_histo() {
@@ -385,7 +469,7 @@ void Histogram3dView::parameters_changed() {
                 if(x < -1 || x > 1.0 ||
                    y < -1 || y > 1.0 ||
                    z < -1 || z > 1.0) {
-                  printf("Warning 3dpc %f %f %f\n", x, y, z);
+                  printf("Warning: 3dpc %f %f %f\n", x, y, z);
                 }
                 
                 vertices[j * 3 + 0] = x * 2. - 1.;
@@ -394,14 +478,40 @@ void Histogram3dView::parameters_changed() {
 
                 float cc = hist_[i] / scale_factor;
                 cc += .2;
-                if (cc > 1.) cc = 1.;
-                colors[j * 3 + 0] = cc;
-                colors[j * 3 + 1] = cc;
-                colors[j * 3 + 2] = cc;
+                if (cc > 1.) {
+                    cc = 1.;
+                }
+
+                // TEMP color display
+                // TODO: replace with proper vertex coloring
+                if (g_bColorEnabled)
+                {
+                    if(colors[j * 3 + 0] == NULL)
+                        colors[j * 3 + 0] = cc;
+                    else
+                        colors[j * 3 + 0] = cc;
+
+                    if(colors[j * 3 + 4] == NULL)
+                        colors[j * 3 + 4] = cc;
+                    else
+                        colors[j * 3 + 1] = cc;
+
+                    if(colors[j * 3 + 8] == NULL)
+                        colors[j * 3 + 8] = cc;
+                    else
+                        colors[j * 3 + 2] = cc;
+                }
+                else
+                {
+                    colors[j * 3 + 0] = cc;
+                    colors[j * 3 + 1] = cc;
+                    colors[j * 3 + 2] = cc;
+                }
                 j++;
             }
         }
     }
+    printf("VERTEX COUNT: %d\n", n_vertices);
 
     updateGL();
 }

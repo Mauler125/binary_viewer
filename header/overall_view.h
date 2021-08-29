@@ -59,8 +59,8 @@ protected:
 
     float m1_, m2_;
     int px_, py_;
-    enum {
-        none, m1_moving, m2_moving, m12_moving
+    enum class allow_selection_{
+        NONE, M1_MOVING, M2_MOVING, M12_MOVING
     } s_;
     bool allow_selection_;
 

@@ -112,6 +112,10 @@ protected:
 
     void resizeEvent(QResizeEvent *e) override;
 
+    void keyPressEvent(QKeyEvent* event);
+
+    void keyReleaseEvent(QKeyEvent* event);
+
     void update_views(bool update_iv1 = true);
 };
 

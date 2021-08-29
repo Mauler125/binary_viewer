@@ -435,3 +435,69 @@ void MainApp::switchView(int ind) {
     views_[ind]->show();
     update_views(false);
 }
+
+void MainApp::keyPressEvent(QKeyEvent* event)
+{
+    switch (event->key())
+    {
+        case (Qt::Key_W):
+        {
+            [[fallthrough]];
+        }
+        case (Qt::Key_A):
+        {
+            [[fallthrough]];
+        }
+        case (Qt::Key_S):
+        {
+            [[fallthrough]];
+        }
+        case (Qt::Key_D):
+        {
+            [[fallthrough]];
+        }
+        case (Qt::Key_Q):
+        {
+            [[fallthrough]];
+        }
+        case (Qt::Key_E):
+        {
+            [[fallthrough]];
+        }
+        default:
+            break;
+    }
+}
+
+void MainApp::keyReleaseEvent(QKeyEvent* event)
+{
+    switch (event->key())
+    {
+    case (Qt::Key_W):
+    {
+        [[fallthrough]];
+    }
+    case (Qt::Key_A):
+    {
+        [[fallthrough]];
+    }
+    case (Qt::Key_S):
+    {
+        [[fallthrough]];
+    }
+    case (Qt::Key_D):
+    {
+        [[fallthrough]];
+    }
+    case (Qt::Key_Q):
+    {
+        [[fallthrough]];
+    }
+    case (Qt::Key_E):
+    {
+        [[fallthrough]];
+    }
+    default:
+        break;
+    }
+}

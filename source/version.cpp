@@ -20,6 +20,6 @@
 #include "version.h"
 
 const QString appname = "Bin_Viewer";
-const QString appversion = "0.1.8_Dev";
+const QString appversion = "1.4.7_Dev";
 const QString base_caption = appname + " " + appversion + " " __DATE__ + " " + __TIME__;
 

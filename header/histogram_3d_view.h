@@ -22,6 +22,15 @@
 
 #include <QGLWidget>
 
+extern float alpha1;
+extern float alpha2;
+extern float alpha3;
+extern float scaleX;
+extern float scaleY;
+extern float scaleZ;
+
+extern bool g_bGLInitialized;
+
 class QSpinBox;
 
 class QComboBox;
@@ -45,8 +54,11 @@ protected slots:
 
     void regen_histo();
 
-protected:
+    void color_histo();
+
     void initializeGL() override;
+
+protected:
 
     void resizeGL(int w, int h) override;
 
@@ -61,6 +73,8 @@ protected:
     QSpinBox *thresh_, *scale_;
     QComboBox *type_;
     QCheckBox *overlap_;
+    QCheckBox *color_;
+    QCheckBox *antialias_;
     int *hist_;
     const unsigned char *dat_;
     long dat_n_;
