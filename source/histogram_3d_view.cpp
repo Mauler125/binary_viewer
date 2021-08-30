@@ -194,6 +194,7 @@ void Histogram3dView::initializeGL() {
 
     if (!glSwitch)
     {
+        glDisable(GL_MULTISAMPLE);
         glDisable(GL_POINT_SMOOTH);
         glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
         glDisable(GL_LINE_SMOOTH);
@@ -205,6 +206,8 @@ void Histogram3dView::initializeGL() {
     }
     else
     {
+        glEnable(GL_MULTISAMPLE);
+        glutSetOption(GLUT_MULTISAMPLE, 64);
         glEnable(GL_POINT_SMOOTH);
         glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
         glEnable(GL_LINE_SMOOTH);

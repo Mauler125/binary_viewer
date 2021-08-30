@@ -23,6 +23,8 @@
 
 #include "main_app.h"
 #include "version.h"
+#include <glut.h>
+#include <QtGui>
 
 
 //----------------------------------------------------------------------
@@ -66,6 +68,9 @@ int main(int argc, char *argv[]) {
 	
 	a.setWindowFlags(Qt::Window);
 	a.show();
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
 
     return a.exec();
 }
