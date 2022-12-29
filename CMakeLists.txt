@@ -19,7 +19,20 @@ include_directories(BIN_VIEWER
         header
         glres/include)
 
-add_compile_options(-Wall -W4)
+if(MSVC)
+        # Similar to -Wall -Wextra
+        add_compile_options(/W3 /WX)
+
+        # Type conversion warnings
+        add_compile_options("/wd4244") # type conversion
+        add_compile_options("/wd4305") # type truncation
+        add_compile_options("/wd4267") # type conversion, loss of data
+
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+        add_compile_options(-Wall -Wextra -Wno-sign-compare)
+endif(MSVC)
+
+# add_compile_options(-Wall -W4)
 
 add_executable(BIN_VIEWER
         source/bayer.cpp
