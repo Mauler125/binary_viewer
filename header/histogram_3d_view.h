@@ -31,6 +31,18 @@ extern float scaleZ;
 
 extern bool g_bGLInitialized;
 
+enum TransformFlags
+{
+    MOVE_UP      = 1<<0,
+    MOVE_RIGHT   = 1<<1,
+    MOVE_DOWN    = 1<<2,
+    MOVE_LEFT    = 1<<3,
+    SCALE_UP     = 1<<4,
+    SCALE_DOWN   = 1<<5,
+    SCALE_UP_Z   = 1<<6,
+    SCALE_DOWN_Z = 1<<7,
+};
+
 class QSpinBox;
 
 class QComboBox;
@@ -50,11 +62,18 @@ public slots:
 
     void parameters_changed();
 
+    bool isSpinning() const;
+
+    void setTransformFlags(int flags);
+    void removeTransformFlags(int flags);
+
 protected slots:
 
     void regen_histo();
 
     void color_histo();
+
+    void transform_histo();
 
     void initializeGL() override;
 
@@ -78,6 +97,7 @@ protected:
     int *hist_;
     const unsigned char *dat_;
     long dat_n_;
+    int flags_;
     bool spinning_;
 };
 

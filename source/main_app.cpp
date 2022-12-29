@@ -366,32 +366,55 @@ void MainApp::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key())
     {
-        case (Qt::Key_W):
-        {
-            [[fallthrough]];
-        }
-        case (Qt::Key_A):
-        {
-            [[fallthrough]];
-        }
-        case (Qt::Key_S):
-        {
-            [[fallthrough]];
-        }
-        case (Qt::Key_D):
-        {
-            [[fallthrough]];
-        }
-        case (Qt::Key_Q):
-        {
-            [[fallthrough]];
-        }
-        case (Qt::Key_E):
-        {
-            [[fallthrough]];
-        }
-        default:
-            break;
+    case (Qt::Key_W):
+    case (Qt::Key_8):
+    {
+        histogram_3d_->setTransformFlags(MOVE_UP);
+        break;
+    }
+    case (Qt::Key_S):
+    case (Qt::Key_5):
+    case (Qt::Key_2):
+    {
+        histogram_3d_->setTransformFlags(MOVE_DOWN);
+        break;
+    }
+    case (Qt::Key_A):
+    case (Qt::Key_4):
+    {
+        histogram_3d_->setTransformFlags(MOVE_LEFT);
+        break;
+    }
+    case (Qt::Key_D):
+    case (Qt::Key_6):
+    {
+        histogram_3d_->setTransformFlags(MOVE_RIGHT);
+        break;
+    }
+    case (Qt::Key_Q):
+    case (Qt::Key_7):
+    {
+        histogram_3d_->setTransformFlags(SCALE_DOWN);
+        break;
+    }
+    case (Qt::Key_E):
+    case (Qt::Key_9):
+    {
+        histogram_3d_->setTransformFlags(SCALE_UP);
+        break;
+    }
+    case (Qt::Key_1):
+    {
+        histogram_3d_->setTransformFlags(SCALE_DOWN | SCALE_DOWN_Z);
+        break;
+    }
+    case (Qt::Key_3):
+    {
+        histogram_3d_->setTransformFlags(SCALE_UP | SCALE_UP_Z);
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -400,28 +423,51 @@ void MainApp::keyReleaseEvent(QKeyEvent* event)
     switch (event->key())
     {
     case (Qt::Key_W):
+    case (Qt::Key_8):
     {
-        [[fallthrough]];
-    }
-    case (Qt::Key_A):
-    {
-        [[fallthrough]];
+        histogram_3d_->removeTransformFlags(MOVE_UP);
+        break;
     }
     case (Qt::Key_S):
+    case (Qt::Key_5):
+    case (Qt::Key_2):
     {
-        [[fallthrough]];
+        histogram_3d_->removeTransformFlags(MOVE_DOWN);
+        break;
+    }
+    case (Qt::Key_A):
+    case (Qt::Key_4):
+    {
+        histogram_3d_->removeTransformFlags(MOVE_LEFT);
+        break;
     }
     case (Qt::Key_D):
+    case (Qt::Key_6):
     {
-        [[fallthrough]];
+        histogram_3d_->removeTransformFlags(MOVE_RIGHT);
+        break;
     }
     case (Qt::Key_Q):
+    case (Qt::Key_7):
     {
-        [[fallthrough]];
+        histogram_3d_->removeTransformFlags(SCALE_DOWN);
+        break;
     }
     case (Qt::Key_E):
+    case (Qt::Key_9):
     {
-        [[fallthrough]];
+        histogram_3d_->removeTransformFlags(SCALE_UP);
+        break;
+    }
+    case (Qt::Key_1):
+    {
+        histogram_3d_->removeTransformFlags(SCALE_DOWN | SCALE_DOWN_Z);
+        break;
+    }
+    case (Qt::Key_3):
+    {
+        histogram_3d_->removeTransformFlags(SCALE_UP | SCALE_UP_Z);
+        break;
     }
     default:
         break;
