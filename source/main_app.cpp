@@ -60,16 +60,7 @@ void MainApp::toggleFullScreen() {
 
 void MainApp::toggleQDarkMode() {
 
-	QFile f(":/qdarkstyle/style.qss");
-
-	if (!f.exists()) {
-		printf("Unable to set stylesheet, file not found\n");
-	}
-	else {
-		f.open(QFile::ReadOnly | QFile::Text);
-		QTextStream ts(&f);
-		qApp->setStyleSheet(ts.readAll());
-	}
+	loadStyle(":/qdarkstyle/style.qss");
 }
 
 void MainApp::toggleLightMode()
@@ -106,17 +97,7 @@ void MainApp::toggleLightMode()
 	qApp->setStyle(QStyleFactory::create("Fusion"));
 	qApp->setStyleSheet("");
 
-	QFile f("qinterface//light.css");
-	if (!f.exists())
-	{
-		printf("Unable to set light stylesheet, file not found\n");
-	}
-	else
-	{
-		f.open(QFile::ReadOnly | QFile::Text);
-		QTextStream ts(&f);
-		qApp->setStyleSheet(ts.readAll());
-	}
+    loadStyle("qinterface//light.css");
 }
 
 void MainApp::toggleDarkMode()
@@ -153,17 +134,7 @@ void MainApp::toggleDarkMode()
 	qApp->setStyle(QStyleFactory::create("Fusion"));
 	qApp->setStyleSheet("");
 
-	QFile f("qinterface//dark.css");
-	if (!f.exists())
-	{
-		printf("Unable to set dark stylesheet, file not found\n");
-	}
-	else
-	{
-		f.open(QFile::ReadOnly | QFile::Text);
-		QTextStream ts(&f);
-		qApp->setStyleSheet(ts.readAll());
-	}
+    loadStyle("qinterface//dark.css");
 }
 
 MainApp::MainApp(QWidget *p)
@@ -311,7 +282,7 @@ bool MainApp::load_file(const QString &filename) {
         return false;
     }
     fseek(f, 0, SEEK_END);
-    long len = ftell(f);
+    size_t len = ftell(f);
     fseek(f, 0, SEEK_SET);
 
     if (bin_ != nullptr) {
@@ -327,7 +298,7 @@ bool MainApp::load_file(const QString &filename) {
     fclose(f);
 
     if (len != bin_len_) {
-        printf("premature read %ld of %ld\n", bin_len_, len);
+        printf("premature read %zu of %zu\n", bin_len_, len);
     }
 
     start_ = 0;
@@ -369,6 +340,25 @@ void MainApp::loadFile() {
     if (!files.empty()) {
         load_files(files);
     }
+}
+
+bool MainApp::loadStyle(QString s)
+{
+    QFile f(s);
+    bool rv = false;
+
+    if (!f.exists()) {
+        printf("Unable to set style; file '%s' not found\n", f.fileName().toLocal8Bit().constData());
+    }
+    else {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        qApp->setStyleSheet(ts.readAll());
+
+        rv = true;
+    }
+
+    return rv;
 }
 
 void MainApp::update_views(bool update_iv1) {

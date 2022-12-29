@@ -51,6 +51,8 @@ public:
 
     bool load_files(const QStringList &filenames);
 
+    bool loadStyle(QString s);
+
 private:
 
 	bool return_to_maximized;
@@ -77,11 +79,9 @@ protected slots:
 
     void switchView(int);
 
-    void loadFile();
-
-    bool prevFile();
-
     bool nextFile();
+    bool prevFile();
+    void loadFile();
 
 protected:
     QComboBox *cur_view_;
