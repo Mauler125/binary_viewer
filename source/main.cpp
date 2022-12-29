@@ -36,7 +36,11 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName("binary_viewer");
 
     MainApp a;
-    a.loadStyle(":/qdarkstyle/style.qss");
+    QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
+    QVariant darkMode = s.value("theme/darkMode", "0");
+
+    const char* style_set = darkMode.toBool() ? ":/qstyle/dark/style.qss" : ":/qstyle/light/style.qss";
+    a.loadStyle(style_set);
 
     if (argc > 2) {
         fprintf(stderr, "usage: %s <filename>\n", argv[0]);

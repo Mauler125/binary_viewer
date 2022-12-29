@@ -65,8 +65,6 @@ private slots:
 
 	void toggleFullScreen();
 
-	void toggleQDarkMode();
-
 	void toggleDarkMode();
 
 	void toggleLightMode();
