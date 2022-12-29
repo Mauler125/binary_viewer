@@ -29,6 +29,7 @@
 #include <stdlib.h>
 
 #include "dot_plot.h"
+#include "main_app.h"
 
 using std::max;
 using std::min;
@@ -379,7 +380,14 @@ void DotPlot::regen_image() {
         *p++ = v;
     }
 
-    img.save("a.png");
+    if (!g_currentfile.isEmpty())
+    {
+        QString imgFile = QString("%1.png").arg(g_currentfile);
+
+        if (!img.save(imgFile)) {
+            printf("Failed to save sample image: %s\n", imgFile.toLocal8Bit().constData());
+        }
+    }
 
 //    long mdw = min(dat_n_, (long) width_->value());
 //    int mwh = min(width(), height());

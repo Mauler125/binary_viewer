@@ -117,4 +117,6 @@ protected:
     void update_views(bool update_iv1 = true);
 };
 
+inline QString g_currentfile;
+
 #endif

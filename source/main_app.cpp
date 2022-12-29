@@ -204,13 +204,12 @@ void MainApp::reject() {
 }
 
 bool MainApp::load_file(const QString &filename) {
-    QString title;
     if (files_.size() > 1) {
-        title = QString("%1/%2: %3").arg(cur_file_ + 1).arg(files_.size()).arg(filename);
+        filename_->setText(QString("%1/%2: %3").arg(cur_file_ + 1).arg(files_.size()).arg(filename));
     } else {
-        title = filename;
+        filename_->setText(filename);
     }
-    filename_->setText(title);
+    g_currentfile = filename;
 
     FILE *f = fopen(filename.toStdString().c_str(), "rb");
     if (!f) {

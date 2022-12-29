@@ -29,7 +29,7 @@ extern float scaleX;
 extern float scaleY;
 extern float scaleZ;
 
-extern bool g_bGLInitialized;
+extern bool b_initialized;
 
 enum TransformFlags
 {

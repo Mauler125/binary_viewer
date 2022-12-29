@@ -47,8 +47,8 @@ float scaleY = 1;
 float scaleZ = 1;
 
 int n_vertices = 0;
-bool g_bGLInitialized = false;
-bool g_bColorEnabled = false;
+bool b_initialized = false;
+bool b_usecolor = false;
 
 Histogram3dView::Histogram3dView(QWidget *p)
         : QGLWidget(p)
@@ -224,7 +224,7 @@ void Histogram3dView::initializeGL() {
     }
 
     glSwitch = !glSwitch;
-    g_bGLInitialized = true;
+    b_initialized = true;
 }
 
 void Histogram3dView::resizeGL(int /*w*/, int /*h*/) {
@@ -331,7 +331,7 @@ void Histogram3dView::paintGL() {
 }
 
 void Histogram3dView::color_histo() {
-    g_bColorEnabled = !g_bColorEnabled;
+    b_usecolor = !b_usecolor;
     regen_histo();
 }
 
@@ -434,7 +434,7 @@ void Histogram3dView::parameters_changed() {
 
                 // TEMP color display
                 // TODO: replace with proper vertex coloring
-                if (g_bColorEnabled)
+                if (b_usecolor)
                 {
                     if(colors[j * 3 + 0] == NULL)
                         colors[j * 3 + 0] = cc;
