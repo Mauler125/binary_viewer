@@ -38,6 +38,8 @@ public slots:
     void set_data(const unsigned char *bin, long len, bool reset_selection = true);
 
     void enableSelection(bool);
+    void enableByteClasses(bool);
+    void enableHilbertCurve(bool);
 
 protected slots:
 

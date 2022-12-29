@@ -26,7 +26,8 @@ using std::min;
 
 OverallView::OverallView(QWidget *p)
         : QLabel(p),
-          m1_(0.), m2_(1.), px_(-1), py_(-1), s_(allow_selection_::NONE), allow_selection_(true),
+          m1_(0.), m2_(1.), px_(-1), py_(-1), s_(allow_selection_::NONE),
+          allow_selection_(true),
           use_byte_classes_(true),
           use_hilbert_curve_(true),
           dat_(nullptr), len_(0) {
@@ -34,6 +35,16 @@ OverallView::OverallView(QWidget *p)
 
 void OverallView::enableSelection(bool v) {
     allow_selection_ = v;
+    update();
+}
+
+void OverallView::enableByteClasses(bool v) {
+    use_byte_classes_ = v;
+    update();
+}
+
+void OverallView::enableHilbertCurve(bool v) {
+    use_hilbert_curve_ = v;
     update();
 }
 

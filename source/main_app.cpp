@@ -189,6 +189,8 @@ MainApp::MainApp(QWidget *p)
         plot_view_->setFixedWidth(scroller_w);
 
         overall_zoomed_->enableSelection(false);
+        overall_zoomed_->enableHilbertCurve(false);
+
         plot_view_->enableSelection(false);
 
         auto layout = new QHBoxLayout;
