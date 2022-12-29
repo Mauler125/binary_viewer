@@ -35,12 +35,13 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("confluencerd.com");
     QCoreApplication::setApplicationName("binary_viewer");
 
-    MainApp a;
+
     QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
     QVariant darkMode = s.value("theme/darkMode", "0");
-
     const char* style_set = darkMode.toBool() ? ":/qstyle/dark/style.qss" : ":/qstyle/light/style.qss";
-    a.loadStyle(style_set);
+
+    MainApp::loadStyle(style_set);
+    MainApp a;
 
     if (argc > 2) {
         fprintf(stderr, "usage: %s <filename>\n", argv[0]);

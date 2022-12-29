@@ -51,7 +51,7 @@ public:
 
     bool load_files(const QStringList &filenames);
 
-    bool loadStyle(QString s);
+    static bool loadStyle(QString s);
 
 private:
 
