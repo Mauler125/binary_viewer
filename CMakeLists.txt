@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.11)
 project(BIN_VIEWER CXX)
 
 set(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+set(CMAKE_CXX_STANDARD 17)
 
 # The project needs the Qt5_DIR System Environment Variable 
 # Example: "C:\QtBase\Qt5.9.8\5.9.8\msvc2017_64\lib\cmake\Qt5"
+set (CMAKE_PREFIX_PATH "C:\\Qt\\Qt5.12.12\\5.12.12\\msvc2017_64\\")
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -27,6 +29,11 @@ if(MSVC)
         add_compile_options("/wd4244") # type conversion
         add_compile_options("/wd4305") # type truncation
         add_compile_options("/wd4267") # type conversion, loss of data
+
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
+        set(CMAKE_MFC_FLAG 1)
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 
 elseif(CMAKE_COMPILER_IS_GNUCXX)
         add_compile_options(-Wall -Wextra -Wno-sign-compare)
@@ -60,7 +67,7 @@ add_executable(BIN_VIEWER
         header/main_app.h
         header/version.h
         header/histogram_3d_view.h
-        qdark/style.qrc
+        qstyle/style.qrc
         glres/include/glut.h)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui OpenGL)
@@ -81,4 +88,4 @@ add_custom_command(TARGET BIN_VIEWER POST_BUILD
         "${PROJECT_SOURCE_DIR}/qtres/$<CONFIGURATION>"
         $<TARGET_FILE_DIR:BIN_VIEWER>)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "qt5binvis")
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "visualizer")
