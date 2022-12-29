@@ -22,7 +22,7 @@
 
 #include <string>
 
-typedef enum class histo_dtype_t {
+enum class histo_dtype_t {
     NONE,
     U8,
     U12,
