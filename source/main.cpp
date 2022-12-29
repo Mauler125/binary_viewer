@@ -43,17 +43,6 @@ int main(int argc, char *argv[]) {
     MainApp::loadStyle(style_set);
     MainApp a;
 
-    if (argc > 2) {
-        fprintf(stderr, "usage: %s <filename>\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-
-    if (argc == 2) {
-        if (!a.load_file(argv[1])) {
-            exit(EXIT_FAILURE);
-        }
-    }
-
     a.setWindowTitle(base_caption);
 
 	a.resize(1200, 700);
@@ -64,6 +53,17 @@ int main(int argc, char *argv[]) {
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
+
+    if (argc > 2) {
+        fprintf(stderr, "usage: %s <filename>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    if (argc == 2) {
+        if (!a.load_file(argv[1])) {
+            exit(EXIT_FAILURE);
+        }
+    }
 
     return a.exec();
 }
