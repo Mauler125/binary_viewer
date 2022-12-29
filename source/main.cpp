@@ -35,7 +35,6 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("confluencerd.com");
     QCoreApplication::setApplicationName("binary_viewer");
 
-
     QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
     QVariant darkMode = s.value("theme/darkMode", "0");
     const char* style_set = darkMode.toBool() ? ":/qstyle/dark/style.qss" : ":/qstyle/light/style.qss";
@@ -44,10 +43,7 @@ int main(int argc, char *argv[]) {
     MainApp a;
 
     a.setWindowTitle(base_caption);
-
 	a.resize(1200, 700);
-	a.show();
-	
 	a.setWindowFlags(Qt::Window);
 	a.show();
 
