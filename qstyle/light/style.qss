@@ -845,7 +845,7 @@ QAbstractSpinBox:selected {
 https://doc.qt.io/qt-5/stylesheet-examples.html#customizing-qframe
 
 --------------------------------------------------------------------------- */
-QLabel {
+/*QLabel {
   background-color: #FAFAFA;
   border: 0px solid #C9CDD0;
   padding: 2px;
@@ -857,7 +857,7 @@ QLabel:disabled {
   background-color: #FAFAFA;
   border: 0px solid #C9CDD0;
   color: #788D9C;
-}
+}*/
 
 /* QTextBrowser -----------------------------------------------------------
 

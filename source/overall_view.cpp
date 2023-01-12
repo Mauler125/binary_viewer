@@ -160,7 +160,7 @@ void OverallView::paintEvent(QPaintEvent *e) {
         int ry2 = m2_ * height();
 
         QBrush brush(QColor(128, 64, 64, 128 + 32));
-        QPen pen(brush, 5, Qt::SolidLine, Qt::RoundCap);
+        QPen pen(brush, 5.5, Qt::SolidLine, Qt::FlatCap);
         p.setPen(pen);
         p.drawLine(0 + 3, ry1, width() - 1 - 3, ry1);
         p.drawLine(0 + 3, ry2, width() - 1 - 3, ry2);
@@ -180,9 +180,9 @@ void OverallView::resizeEvent(QResizeEvent *e) {
 void OverallView::update_pix() {
     if (img_.isNull()) return;
 
-    int vw = width() - 4;
-    int vh = height() - 4; // TODO BUG: With QDarkStyle, without the subtraction, the height or width of the application grows without bounds.
-    pix_ = QPixmap::fromImage(img_).scaled(vw, vh); //, Qt::KeepAspectRatio);
+    int vw = width();
+    int vh = height();
+    pix_ = QPixmap::fromImage(img_).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
     setPixmap(pix_);
     printf("%d %d   %d %d   %d %d\n", vw, vh, img_.width(), img_.height(), width(), height());
 }
