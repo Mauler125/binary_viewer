@@ -97,10 +97,12 @@ void PlotView::set_data(int ind, const float *dat, long len, bool normalize) {
                 c = 20 + int(na * (255 - 20));
                 pc = c;
             }
-            unsigned char r = 20;
-            unsigned char g = min(c + 60, 255);
-            unsigned char b = 20;
-            unsigned int v = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
+
+            quint8 r = (c > 127) ? (c * 2) : (0);
+            quint8 g = (c <= 127) ? (255 - c * 2) : (0);
+            quint8 b = (c > 127) ? (255 - c * 2) : (c * 2);
+
+            unsigned int v = (0xff << 24) | (r << 16) | (g << 8) | (b << 0);
             p[i * w + x] = v;
         }
 
@@ -120,7 +122,7 @@ void PlotView::paintEvent(QPaintEvent *e) {
         int ry2 = m2_ * height();
 
         QBrush brush(QColor(128, 64, 64, 128 + 32));
-        QPen pen(brush, 5, Qt::SolidLine, Qt::RoundCap);
+        QPen pen(brush, 5.5, Qt::SolidLine, Qt::FlatCap);
         p.setPen(pen);
         p.drawLine(0 + 3, ry1, width() - 1 - 3, ry1);
         p.drawLine(0 + 3, ry2, width() - 1 - 3, ry2);
@@ -142,9 +144,9 @@ void PlotView::resizeEvent(QResizeEvent *e) {
 void PlotView::update_pix() {
     if (img_[ind_].isNull()) return;
 
-    int vw = width() - 4;
-    int vh = height() - 4; // TODO BUG: With QDarkStyle, without the subtraction, the height or width of the application grows without bounds.
-    pix_ = QPixmap::fromImage(img_[ind_]).scaled(vw, vh); //, Qt::KeepAspectRatio);
+    int vw = width();
+    int vh = height();
+    pix_ = QPixmap::fromImage(img_[ind_]).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
     setPixmap(pix_);
 }
 
