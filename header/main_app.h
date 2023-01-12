@@ -110,6 +110,9 @@ protected:
 
     void resizeEvent(QResizeEvent *e) override;
 
+    void dropEvent(QDropEvent* ev) override;
+    void dragEnterEvent(QDragEnterEvent* ev) override;
+
     void keyPressEvent(QKeyEvent* event);
 
     void keyReleaseEvent(QKeyEvent* event);

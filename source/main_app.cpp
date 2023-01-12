@@ -76,6 +76,8 @@ MainApp::MainApp(QWidget *p)
         : QDialog(p), cur_file_(-1), bin_(nullptr), bin_len_(0), start_(0), end_(0) {
     done_flag_ = false;
 
+    this->setSizeGripEnabled(true);
+    this->setAcceptDrops(true);
     auto top_layout = new QGridLayout;
 
     new QShortcut(QKeySequence(Qt::Key_F11), this, SLOT(toggleFullScreen()));
@@ -189,6 +191,23 @@ MainApp::~MainApp() {
 void MainApp::resizeEvent(QResizeEvent *e) {
     QDialog::resizeEvent(e);
     update_views();
+}
+
+void MainApp::dropEvent(QDropEvent* ev)
+{
+    QList<QUrl> urls = ev->mimeData()->urls();
+    if (!urls.empty()) {
+        QStringList list;
+        for (QUrl url : urls) {
+            list.append(url.toLocalFile());
+        }
+        load_files(list);
+    }
+}
+
+void MainApp::dragEnterEvent(QDragEnterEvent* ev)
+{
+    ev->acceptProposedAction();
 }
 
 void MainApp::quit() {
