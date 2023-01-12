@@ -62,8 +62,6 @@ public slots:
 
     void parameters_changed();
 
-    bool isSpinning() const;
-
     void setTransformFlags(int flags);
     void removeTransformFlags(int flags);
 
@@ -89,6 +87,8 @@ protected:
 
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+    void wheelEvent(QWheelEvent* event) override;
+
     QSpinBox *thresh_, *scale_;
     QComboBox *type_;
     QCheckBox *overlap_;
@@ -98,7 +98,6 @@ protected:
     const unsigned char *dat_;
     long dat_n_;
     int flags_;
-    bool spinning_;
 };
 
 #endif
