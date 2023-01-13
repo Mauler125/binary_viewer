@@ -36,28 +36,22 @@ using std::isnan;
 using std::signbit;
 using std::isinf;
 
-static GLfloat *vertices = nullptr;
-static GLfloat *colors = nullptr;
-
-float alpha1 = 0;
-float alpha2 = 0;
-float alpha3 = 0;
-float scaleX = 1;
-float scaleY = 1;
-float scaleZ = 1;
-
-int mouse_x = 0;
-int mouse_y = 0;
-
-int n_vertices = 0;
-bool b_initialized = false;
-
 CHistogram3D::CHistogram3D(QWidget *p)
         : QGLWidget(p)
+        , m_Vertices(nullptr)
+        , m_Colors(nullptr)
         , m_Histogram(nullptr) 
         , m_Data(nullptr)
         , m_Size(0)
-        , m_Flags(0) {
+        , m_Flags(0)
+        , m_VertexCount(0)
+        , m_MouseX(0)
+        , m_MouseY(0)
+        , m_AngleX(0)
+        , m_AngleY(0)
+        , m_ScaleX(1)
+        , m_ScaleY(1)
+        , m_ScaleZ(1) {
     auto update_timer = new QTimer(this);
     QObject::connect(update_timer, SIGNAL(timeout()), this, SLOT(updateGL())); //, Qt::QueuedConnection);
     update_timer->start(10);
@@ -182,9 +176,16 @@ CHistogram3D::CHistogram3D(QWidget *p)
 }
 
 CHistogram3D::~CHistogram3D() {
-    delete[] m_Histogram;
-    delete[] vertices;
-    delete[] colors;
+
+    if (m_Histogram) {
+        delete[] m_Histogram;
+    }
+    if (m_Vertices) {
+        delete[] m_Vertices;
+    }
+    if (m_Colors) {
+        delete[] m_Colors;
+    }
 }
 
 void CHistogram3D::setData(const unsigned char *dat, long n) {
@@ -221,7 +222,6 @@ void CHistogram3D::initializeGL() {
     }
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    b_initialized = true;
 }
 
 void CHistogram3D::resizeGL(int /*w*/, int /*h*/) {
@@ -244,10 +244,10 @@ void CHistogram3D::paintGL() {
     glTranslatef(0, 0, -10);
 
     glRotatef(360, 1, 0, 0);
-    glRotatef(alpha1, 1, 0, 0);
-    glRotatef(alpha2, 0, 1, 0);
+    glRotatef(m_AngleX, 1, 0, 0);
+    glRotatef(m_AngleY, 0, 1, 0);
 
-	glScalef(scaleX, scaleY, scaleZ);
+	glScalef(m_ScaleX, m_ScaleY, m_ScaleZ);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
@@ -312,11 +312,11 @@ void CHistogram3D::paintGL() {
     }
 
     {
-        if (vertices) {
-            glVertexPointer(3, GL_FLOAT, 0, vertices);
-            glColorPointer(3, GL_FLOAT, 0, colors);
+        if (m_Vertices) {
+            glVertexPointer(3, GL_FLOAT, 0, m_Vertices);
+            glColorPointer(3, GL_FLOAT, 0, m_Colors);
 
-            glDrawArrays(GL_POINTS, 0, n_vertices);
+            glDrawArrays(GL_POINTS, 0, m_VertexCount);
         }
     }
 
@@ -333,37 +333,37 @@ void CHistogram3D::colorHisto() {
 
 void CHistogram3D::transformHisto() {
     if (m_Flags & MOVE_UP) {
-        alpha1 = alpha1 + -0.7 * 1;
+        m_AngleX = m_AngleX + -0.7 * 1;
     }
     if (m_Flags & MOVE_RIGHT) {
-        alpha2 = alpha2 + 0.7 * 1;
+        m_AngleY = m_AngleY + 0.7 * 1;
     }
     if (m_Flags & MOVE_DOWN) {
-        alpha1 = alpha1 + 0.7 * 1;
+        m_AngleX = m_AngleX + 0.7 * 1;
     }
     if (m_Flags & MOVE_LEFT) {
-        alpha2 = alpha2 + -0.7 * 1;
+        m_AngleY = m_AngleY + -0.7 * 1;
     }
     if (m_Flags & SCALE_UP) {
 
         if (!(m_Flags & SCALE_UP_Z)) { // Z Only.
-            scaleX += 0.01;
-            scaleY += 0.01;
+            m_ScaleX += 0.01;
+            m_ScaleY += 0.01;
         }
-        scaleZ += 0.01;
+        m_ScaleZ += 0.01;
     }
     if (m_Flags & SCALE_DOWN) {
 
         if (!(m_Flags & SCALE_DOWN_Z)) { // Z Only.
-            if (scaleX >= 0.05) {
-                scaleX += -0.01;
+            if (m_ScaleX >= 0.05) {
+                m_ScaleX += -0.01;
             }
-            if (scaleY >= 0.05) {
-                scaleY += -0.01;
+            if (m_ScaleY >= 0.05) {
+                m_ScaleY += -0.01;
             }
         }
-        if (scaleZ >= 0.05) {
-            scaleZ += -0.01;
+        if (m_ScaleZ >= 0.05) {
+            m_ScaleZ += -0.01;
         }
     }
 }
@@ -387,21 +387,21 @@ void CHistogram3D::parametersChanged() {
     int thresh = m_Threshold->value();
     float scale_factor = m_Scale->value();
 
-    n_vertices = 0;
+    m_VertexCount = 0;
     for (int i = 0; i < 256 * 256 * 256; i++) {
         if (m_Histogram[i] >= thresh) {
-            n_vertices++;
+            m_VertexCount++;
         }
     }
 
-    delete[] vertices;
-    vertices = nullptr;
-    delete[] colors;
-    colors = nullptr;
+    delete[] m_Vertices;
+    m_Vertices = nullptr;
+    delete[] m_Colors;
+    m_Colors = nullptr;
 
-    if (n_vertices > 0) {
-        vertices = new GLfloat[n_vertices * 3];
-        colors = new GLfloat[n_vertices * 3];
+    if (m_VertexCount > 0) {
+        m_Vertices = new GLfloat[m_VertexCount * 3];
+        m_Colors = new GLfloat[m_VertexCount * 3];
         for (int i = 0, j = 0; i < 256 * 256 * 256; i++) {
             if (m_Histogram[i] >= thresh) {
                 float x = i / (256 * 256);
@@ -417,9 +417,9 @@ void CHistogram3D::parametersChanged() {
                   printf("Warning: 3dpc %f %f %f\n", x, y, z);
                 }
                 
-                vertices[j * 3 + 0] = x * 2. - 1.;
-                vertices[j * 3 + 1] = y * 2. - 1.;
-                vertices[j * 3 + 2] = z * 2. - 1.;
+                m_Vertices[j * 3 + 0] = x * 2. - 1.;
+                m_Vertices[j * 3 + 1] = y * 2. - 1.;
+                m_Vertices[j * 3 + 2] = z * 2. - 1.;
 
                 float cc = m_Histogram[i] / scale_factor;
                 cc += .2;
@@ -434,15 +434,15 @@ void CHistogram3D::parametersChanged() {
                         if (cc > 0.375f)
                         {
                             float g = (cc - 0.35f) / (0.7f - 0.35f) * (1.0f - 0.35f) + 0.35f;
-                            colors[j * 3 + 0] = sqrt(cc/3);
-                            colors[j * 3 + 1] = g;
-                            colors[j * 3 + 2] = sqrt(cc/3);
+                            m_Colors[j * 3 + 0] = sqrt(cc/3);
+                            m_Colors[j * 3 + 1] = g;
+                            m_Colors[j * 3 + 2] = sqrt(cc/3);
                         }
                         else
                         {
-                            colors[j * 3 + 0] = cc;
-                            colors[j * 3 + 1] = cc;
-                            colors[j * 3 + 2] = cc+0.0f;
+                            m_Colors[j * 3 + 0] = cc;
+                            m_Colors[j * 3 + 1] = cc;
+                            m_Colors[j * 3 + 2] = cc+0.0f;
                         }
                     }
                     else
@@ -450,24 +450,30 @@ void CHistogram3D::parametersChanged() {
                         float r = (cc > 0.7f) ? 1.0f : cc * 2;
                         float g = (cc < 0.7f) ? 1.0f : 1.0f - (cc - 0.7f) * 2;
                         float b = 0.0f;
-                        colors[j * 3 + 0] = r;
-                        colors[j * 3 + 1] = g;
-                        colors[j * 3 + 2] = b;
+                        m_Colors[j * 3 + 0] = r;
+                        m_Colors[j * 3 + 1] = g;
+                        m_Colors[j * 3 + 2] = b;
                     }
                 }
                 else
                 {
-                    colors[j * 3 + 0] = cc;
-                    colors[j * 3 + 1] = cc;
-                    colors[j * 3 + 2] = cc;
+                    m_Colors[j * 3 + 0] = cc;
+                    m_Colors[j * 3 + 1] = cc;
+                    m_Colors[j * 3 + 2] = cc;
                 }
                 j++;
             }
         }
     }
 
-    printf("%s(%d)\n", "n_vertices", n_vertices);
+    printf("%s(%d)\n", "m_VertexCount", m_VertexCount);
     updateGL();
+}
+
+void CHistogram3D::setPositionScale(float f) {
+    m_ScaleX = f;
+    m_ScaleY = f;
+    m_ScaleZ = f;
 }
 
 void CHistogram3D::setTransformFlags(int flags) {
@@ -480,8 +486,8 @@ void CHistogram3D::removeTransformFlags(int flags) {
 
 void CHistogram3D::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        mouse_x = event->x();
-        mouse_y = event->y();
+        m_MouseX = event->x();
+        m_MouseY = event->y();
         event->accept();
     }
 }
@@ -491,14 +497,14 @@ void CHistogram3D::mouseMoveEvent(QMouseEvent *event) {
         return;
     }
 
-    int delta_x = mouse_x - event->x();
-    int delta_y = mouse_y - event->y();
+    int delta_x = m_MouseX - event->x();
+    int delta_y = m_MouseY - event->y();
 
-    alpha2 -= delta_x;
-    alpha1 -= delta_y;
+    m_AngleX -= delta_y;
+    m_AngleY -= delta_x;
 
-    mouse_x = event->x();
-    mouse_y = event->y();
+    m_MouseX = event->x();
+    m_MouseY = event->y();
 
     event->accept();
 }
@@ -507,20 +513,13 @@ void CHistogram3D::mouseReleaseEvent(QMouseEvent *e) {
     e->accept();
 }
 
-void set_position_scale_float(float f)
-{
-    scaleX = f;
-    scaleY = f;
-    scaleZ = f;
-}
-
 void CHistogram3D::wheelEvent(QWheelEvent* event)
 {
     float scaleFactor = 0.0005;
-    float scale = scaleX;
+    float scale = m_ScaleX;
     scale = scale + (event->delta() * scaleFactor);
 
     if (scale >= 0.0001) {
-        set_position_scale_float(scale);
+        setPositionScale(scale);
     }
 }

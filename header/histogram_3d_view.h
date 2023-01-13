@@ -22,15 +22,6 @@
 
 #include <QGLWidget>
 
-extern float alpha1;
-extern float alpha2;
-extern float alpha3;
-extern float scaleX;
-extern float scaleY;
-extern float scaleZ;
-
-extern bool b_initialized;
-
 enum TransformFlags
 {
     MOVE_UP      = 1<<0,
@@ -57,6 +48,7 @@ public slots:
     void setData(const unsigned char *dat, long n);
     void parametersChanged();
 
+    void setPositionScale(float f);
     void setTransformFlags(int flags);
     void removeTransformFlags(int flags);
 
@@ -79,10 +71,25 @@ protected:
     QCheckBox *m_Overlap;
     QCheckBox *m_Color;
     QCheckBox *m_Antialias;
+
+    GLfloat* m_Vertices;
+    GLfloat* m_Colors;
+
     int *m_Histogram;
     const unsigned char *m_Data;
     long m_Size;
     int m_Flags;
+
+    int m_VertexCount;
+
+    int m_MouseX;
+    int m_MouseY;
+
+    float m_AngleX;
+    float m_AngleY;
+    float m_ScaleX;
+    float m_ScaleY;
+    float m_ScaleZ;
 };
 
 #endif
