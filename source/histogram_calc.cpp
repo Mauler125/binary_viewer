@@ -165,7 +165,7 @@ int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) 
         }
             break;
         case HistoDtype_t::U64: {
-            auto dat_u64 = (const unsigned long *) dat_u8;
+            auto dat_u64 = (const unsigned long long *) dat_u8;
             for (long i = 0; i < n / 8 - 1; i++) {
                 int a1 = dat_u64[i + 0] / float(0xffffffffffffffff) * 255.;
                 int a2 = dat_u64[i + 1] / float(0xffffffffffffffff) * 255.;
@@ -318,7 +318,7 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
         }
             break;
         case HistoDtype_t::U64: {
-            auto dat_u64 = (const unsigned long *) dat_u8;
+            auto dat_u64 = (const unsigned long long *) dat_u8;
             for (long i = 0; i < n / 8 - 2; i += st) {
                 int a1 = dat_u64[i + 0] / float(0xffffffffffffffff) * 255.;
                 int a2 = dat_u64[i + 1] / float(0xffffffffffffffff) * 255.;
