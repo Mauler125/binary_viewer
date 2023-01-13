@@ -28,45 +28,39 @@
 
 class QSpinBox;
 
-class DotPlot : public QLabel {
+class CDotPlot : public QLabel {
 Q_OBJECT
 public:
-    explicit DotPlot(QWidget *p = nullptr);
-
-    ~DotPlot() override;
+    explicit CDotPlot(QWidget *p = nullptr);
+    ~CDotPlot() override;
 
 public slots:
-
     void setData(const unsigned char *dat, long n);
-
-    void parameters_changed();
+    void parametersChanged();
 
 protected slots:
-
     void setImage(QImage &img);
-
-    void advance_mat(int bs, const std::vector<std::pair<int, int> > &rand);
-
-    void regen_image();
+    void advanceMat(int bs, const std::vector<std::pair<int, int> > &rand);
+    void regenImage();
 
 protected:
-    QImage img_;
-    QPixmap pix_;
-
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *e) override;
-
     void update_pix();
 
-    QSpinBox *offset1_, *offset2_, *width_, *max_samples_;
-    const unsigned char *dat_;
-    long dat_n_;
-    int *mat_;
-    int mat_max_n_;
-    int mat_n_;
-    std::vector<std::pair<int, int> > pts_;
-    int pts_i_;
+    QSpinBox *m_Offset1, *m_Offset2, *m_Width, *m_MaxSamples;
+    const unsigned char *m_Data;
+    long m_Size;
+
+    int *m_Material;
+    int m_MaterialMaxSize;
+    int m_MaterialSize;
+
+    int m_PointsIndex;
+    std::vector<std::pair<int, int> > m_Points;
+
+    QImage m_Image;
+    QPixmap m_Pixmap;
 };
 
 #endif

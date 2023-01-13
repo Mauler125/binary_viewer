@@ -44,60 +44,45 @@ enum TransformFlags
 };
 
 class QSpinBox;
-
 class QComboBox;
-
 class QCheckBox;
 
-class Histogram3dView : public QGLWidget {
+class CHistogram3D : public QGLWidget {
 Q_OBJECT
 public:
-    explicit Histogram3dView(QWidget *p = nullptr);
-
-    ~Histogram3dView() override;
+    explicit CHistogram3D(QWidget *p = nullptr);
+    ~CHistogram3D() override;
 
 public slots:
-
     void setData(const unsigned char *dat, long n);
-
-    void parameters_changed();
+    void parametersChanged();
 
     void setTransformFlags(int flags);
     void removeTransformFlags(int flags);
 
 protected slots:
-
-    void regen_histo();
-
-    void color_histo();
-
-    void transform_histo();
-
+    void regenHisto();
+    void colorHisto();
+    void transformHisto();
     void initializeGL() override;
 
 protected:
-
     void resizeGL(int w, int h) override;
-
     void paintGL() override;
-
     void mousePressEvent(QMouseEvent *event) override;
-
     void mouseMoveEvent(QMouseEvent *event) override;
-
     void mouseReleaseEvent(QMouseEvent *event) override;
-
     void wheelEvent(QWheelEvent* event) override;
 
-    QSpinBox *thresh_, *scale_;
-    QComboBox *type_;
-    QCheckBox *overlap_;
-    QCheckBox *color_;
-    QCheckBox *antialias_;
-    int *hist_;
-    const unsigned char *dat_;
-    long dat_n_;
-    int flags_;
+    QSpinBox *m_Threshold, *m_Scale;
+    QComboBox *m_Type;
+    QCheckBox *m_Overlap;
+    QCheckBox *m_Color;
+    QCheckBox *m_Antialias;
+    int *m_Histogram;
+    const unsigned char *m_Data;
+    long m_Size;
+    int m_Flags;
 };
 
 #endif

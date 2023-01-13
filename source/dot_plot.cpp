@@ -47,11 +47,11 @@ using std::make_pair;
 long random() { return rand(); }
 #endif
 
-DotPlot::DotPlot(QWidget *p)
+CDotPlot::CDotPlot(QWidget *p)
         : QLabel(p),
-          dat_(nullptr), dat_n_(0),
-          mat_(nullptr), mat_max_n_(0), mat_n_(0),
-          pts_i_(0) {
+          m_Data(nullptr), m_Size(0),
+          m_Material(nullptr), m_MaterialMaxSize(0), m_MaterialSize(0),
+          m_PointsIndex(0) {
     {
         auto layout = new QGridLayout(this);
         int r = 0;
@@ -67,7 +67,7 @@ DotPlot::DotPlot(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(0, 100000);
             sb->setValue(0);
-            offset1_ = sb;
+            m_Offset1 = sb;
             layout->addWidget(sb, r, 1);
         }
         r++;
@@ -83,7 +83,7 @@ DotPlot::DotPlot(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(0, 100000);
             sb->setValue(0);
-            offset2_ = sb;
+            m_Offset2 = sb;
             layout->addWidget(sb, r, 1);
         }
         r++;
@@ -99,7 +99,7 @@ DotPlot::DotPlot(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 100000);
             sb->setValue(10000);
-            width_ = sb;
+            m_Width = sb;
             layout->addWidget(sb, r, 1);
         }
         r++;
@@ -115,7 +115,7 @@ DotPlot::DotPlot(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 100000);
             sb->setValue(10);
-            max_samples_ = sb;
+            m_MaxSamples = sb;
             layout->addWidget(sb, r, 1);
         }
         r++;
@@ -124,33 +124,33 @@ DotPlot::DotPlot(QWidget *p)
             auto pb = new QPushButton("Resample", this);
             pb->setFixedSize(pb->sizeHint());
             layout->addWidget(pb, r, 1);
-            QObject::connect(pb, SIGNAL(clicked()), this, SLOT(parameters_changed()));
+            QObject::connect(pb, SIGNAL(clicked()), this, SLOT(parametersChanged()));
         }
         r++;
 
         layout->setColumnStretch(2, 1);
         layout->setRowStretch(r, 1);
 
-        QObject::connect(offset1_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(offset2_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(width_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(max_samples_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
+        QObject::connect(m_Offset1, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_Offset2, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_Width, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_MaxSamples, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
     }
 }
 
-DotPlot::~DotPlot() {
-    delete[] mat_;
+CDotPlot::~CDotPlot() {
+    delete[] m_Material;
 }
 
-void DotPlot::setImage(QImage &img) {
-    img_ = img;
+void CDotPlot::setImage(QImage &img) {
+    m_Image = img;
 
     update_pix();
 
     update();
 }
 
-void DotPlot::paintEvent(QPaintEvent *e) {
+void CDotPlot::paintEvent(QPaintEvent *e) {
     QLabel::paintEvent(e);
 
     QPainter p(this);
@@ -161,70 +161,78 @@ void DotPlot::paintEvent(QPaintEvent *e) {
     }
 }
 
-void DotPlot::resizeEvent(QResizeEvent *e) {
+void CDotPlot::resizeEvent(QResizeEvent *e) {
     QLabel::resizeEvent(e);
 
     int tmp = min(width(), height());
-    if (tmp != mat_max_n_) {
-        delete[] mat_;
-        mat_max_n_ = tmp;
-        mat_n_ = 0;
-        mat_ = new int[mat_max_n_ * mat_max_n_];
+    if (tmp != m_MaterialMaxSize) {
+        delete[] m_Material;
+        m_MaterialMaxSize = tmp;
+        m_MaterialSize = 0;
+        m_Material = new int[m_MaterialMaxSize * m_MaterialMaxSize];
     }
 
-    parameters_changed();
+    parametersChanged();
 }
 
-void DotPlot::update_pix() {
-    if (img_.isNull()) return;
+void CDotPlot::update_pix() {
+    if (m_Image.isNull()) return;
 
     int vw = width();
     int vh = height();
-    pix_ = QPixmap::fromImage(img_).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
-    setPixmap(pix_);
+    m_Pixmap = QPixmap::fromImage(m_Image).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
+    setPixmap(m_Pixmap);
 }
 
 
-void DotPlot::setData(const unsigned char *dat, long n) {
-    dat_ = dat;
-    dat_n_ = n;
+void CDotPlot::setData(const unsigned char *dat, long n) {
+    m_Data = dat;
+    m_Size = n;
 
-    offset1_->setRange(0, dat_n_);
-    offset2_->setRange(0, dat_n_);
-    width_->setRange(1, dat_n_);
+    m_Offset1->setRange(0, m_Size);
+    m_Offset2->setRange(0, m_Size);
+    m_Width->setRange(1, m_Size);
 
-    width_->setValue(dat_n_);
+    m_Width->setValue(m_Size);
 
     // parameters_changed() triggered by the previous setValue() call.
     // parameters_changed();
 }
 
-void DotPlot::parameters_changed() {
+void CDotPlot::parametersChanged() {
     std::random_device rd;
     std::mt19937 g(rd());
 
     puts("called");
 
-    long mdw = min(dat_n_, (long) width_->value());
-    int bs = int(mdw / mat_max_n_) + ((mdw % mat_max_n_) > 0 ? 1 : 0);
-    mat_n_ = 0;
+    long mdw = min(m_Size, (long) m_Width->value());
+    int bs = int(mdw / m_MaterialMaxSize) + ((mdw % m_MaterialMaxSize) > 0 ? 1 : 0);
+    m_MaterialSize = 0;
 
-    if (dat_n_ > 0) {
-        mat_n_ = min(int(mdw / bs), mat_max_n_);
-        printf("Setting max to %d\n", bs);
-        max_samples_->setMaximum(bs);
+    if (m_Size > 0) {
+        m_MaterialSize = min(int(mdw / bs), m_MaterialMaxSize);
+        printf("Setting max to: '%d'\n", bs);
+        m_MaxSamples->setMaximum(bs);
     }
 
-    printf("dat_n_%d mdw:%d mat_max_n_:%d bs:%d mat_n_:%d bs * mat_n_:%d\n", dat_n_, mdw, mat_max_n_, bs, mat_n_, bs * mat_n_);
+    int mul = bs * m_MaterialSize;
 
-    memset(mat_, 0, sizeof(mat_[0]) * mat_max_n_ * mat_max_n_);
+    printf("%s(%d) %s(%d) %s(%d) %s(%d) %s(%d) %s(%d)\n",
+        NAMEOF(m_Size), m_Size, 
+        NAMEOF(mdw), mdw, 
+        NAMEOF(m_MaterialMaxSize), m_MaterialMaxSize, 
+        NAMEOF(bs), bs,
+        NAMEOF(m_MaterialSize), m_MaterialSize,
+        NAMEOF(mul), mul);
 
-    pts_.clear();
-    pts_.reserve(mat_n_ * mat_n_);
+    memset(m_Material, 0, sizeof(m_Material[0]) * m_MaterialMaxSize * m_MaterialMaxSize);
+
+    m_Points.clear();
+    m_Points.reserve(m_MaterialSize * m_MaterialSize);
 #if 1
-    for (int i = 0; i < mat_n_; i++) {
-        for (int j = i; j < mat_n_; j++) {
-            pts_.emplace_back(make_pair(i, j));
+    for (int i = 0; i < m_MaterialSize; i++) {
+        for (int j = i; j < m_MaterialSize; j++) {
+            m_Points.emplace_back(make_pair(i, j));
         }
     }
 #else
@@ -233,7 +241,7 @@ void DotPlot::parameters_changed() {
 //        pts_.emplace_back(make_pair(i, i));
     }
 #endif
-    shuffle(pts_.begin(), pts_.end(), g);
+    shuffle(m_Points.begin(), m_Points.end(), g);
 
     {
 //        float sf = 1.f;
@@ -248,14 +256,14 @@ void DotPlot::parameters_changed() {
 
 //        printf("pts_.size(): %d sf: %f\n", pts_.size(), sf);
         // pts_i_ is decremented in advance_mat()
-        pts_i_ = pts_.size();
+        m_PointsIndex = m_Points.size();
         int ii = 0;
         // Precompute some random values for sampling
         std::vector<pair<int, int> > random;
-        while (pts_i_ > 0) {
+        while (m_PointsIndex > 0) {
             if ((ii++ % 100) == 0) {
                 {
-                    int n = min(max_samples_->value(), bs);
+                    int n = min(m_MaxSamples->value(), bs);
 //            n = n * n;
                     random.clear();
                     random.reserve(n);
@@ -264,7 +272,7 @@ void DotPlot::parameters_changed() {
                         int a = rand() % bs;
                         random.emplace_back(make_pair(a, a));
                     }
-                    int n2 = min(max_samples_->value(), bs * bs - bs);
+                    int n2 = min(m_MaxSamples->value(), bs * bs - bs);
                     printf("Generating %d points in range [0, %d-1] off the diagonal\n", n2, bs);
                     for (int tt = 0; tt < n2;) {
                         int a = rand() % bs;
@@ -281,17 +289,17 @@ void DotPlot::parameters_changed() {
 
 
 //            random_shuffle(rand.begin(), rand.end());
-            advance_mat(bs, random);
+            advanceMat(bs, random);
         }
     }
-    regen_image();
+    regenImage();
 }
 
-void DotPlot::advance_mat(int bs, const vector<pair<int, int> > &rand) {
-    if (pts_i_ == 0 || pts_.empty()) return;
+void CDotPlot::advanceMat(int bs, const vector<pair<int, int> > &rand) {
+    if (m_PointsIndex == 0 || m_Points.empty()) return;
 
-    pts_i_--;
-    pair<int, int> pt = pts_[pts_i_];
+    m_PointsIndex--;
+    pair<int, int> pt = m_Points[m_PointsIndex];
 
     int x = pt.first;
     int y = pt.second;
@@ -318,11 +326,11 @@ void DotPlot::advance_mat(int bs, const vector<pair<int, int> > &rand) {
 //            int i = xo + (random() % bs);
 //            int j = yo + (random() % bs);
 
-            if (dat_[i] == dat_[j]) {
-                int ii = y * mat_n_ + x;
-                int jj = x * mat_n_ + y;
-                if (0 <= ii && ii < mat_n_ * mat_n_) mat_[ii]++;
-                if (0 <= jj && jj < mat_n_ * mat_n_) mat_[jj]++;
+            if (m_Data[i] == m_Data[j]) {
+                int ii = y * m_MaterialSize + x;
+                int jj = x * m_MaterialSize + y;
+                if (0 <= ii && ii < m_MaterialSize * m_MaterialSize) m_Material[ii]++;
+                if (0 <= jj && jj < m_MaterialSize * m_MaterialSize) m_Material[jj]++;
             }
 //            printf("%d %d %d %d %d %d %d %d\n", xo, yo, tt, rand[tt], i, j, dat_[i], dat_[j]);
         }
@@ -332,32 +340,32 @@ void DotPlot::advance_mat(int bs, const vector<pair<int, int> > &rand) {
                 int i = xo + tt1;
                 int j = yo + tt2;
 
-                if (dat_[i] == dat_[j]) {
-                    int ii = y * mat_n_ + x;
-                    int jj = x * mat_n_ + y;
-                    if (0 <= ii && ii < mat_n_ * mat_n_) mat_[ii]++;
+                if (m_Data[i] == m_Data[j]) {
+                    int ii = y * m_MaterialSize + x;
+                    int jj = x * m_MaterialSize + y;
+                    if (0 <= ii && ii < m_MaterialSize * m_MaterialSize) m_Material[ii]++;
 //                    else abort();
-                    if (0 <= jj && jj < mat_n_ * mat_n_) mat_[jj]++;
+                    if (0 <= jj && jj < m_MaterialSize * m_MaterialSize) m_Material[jj]++;
 //                    else abort();
                 }
-                printf("%d %d %d %d %d %d %d %d\n", xo, yo, tt1, tt2, i, j, dat_[i], dat_[j]);
+                printf("%d %d %d %d %d %d %d %d\n", xo, yo, tt1, tt2, i, j, m_Data[i], m_Data[j]);
             }
         }
     }
 }
 
-void DotPlot::regen_image() {
+void CDotPlot::regenImage() {
     // Find the maximum value, ignoring the diagonal.
     // Could stop the search once m = max_samples_->value()
     int m = 0;
-    for (int j = 0; j < mat_n_; j++) {
+    for (int j = 0; j < m_MaterialSize; j++) {
         for (int i = 0; i < j; i++) {
-            int k = j * mat_n_ + i;
-            if (m < mat_[k]) m = mat_[k];
+            int k = j * m_MaterialSize + i;
+            if (m < m_Material[k]) m = m_Material[k];
         }
-        for (int i = j + 1; i < mat_n_; i++) {
-            int k = j * mat_n_ + i;
-            if (m < mat_[k]) m = mat_[k];
+        for (int i = j + 1; i < m_MaterialSize; i++) {
+            int k = j * m_MaterialSize + i;
+            if (m < m_Material[k]) m = m_Material[k];
         }
     }
 
@@ -368,11 +376,11 @@ void DotPlot::regen_image() {
         printf("max(2): %d\n", m);
     }
 
-    QImage img(mat_n_, mat_n_, QImage::Format_RGB32);
+    QImage img(m_MaterialSize, m_MaterialSize, QImage::Format_RGB32);
     img.fill(0);
     auto p = (unsigned int *) img.bits();
-    for (int i = 0; i < mat_n_ * mat_n_; i++) {
-        int c = min(255, int(mat_[i] / float(m) * 255. + .5));
+    for (int i = 0; i < m_MaterialSize * m_MaterialSize; i++) {
+        int c = min(255, int(m_Material[i] / float(m) * 255. + .5));
         unsigned char r = c;
         unsigned char g = c;
         unsigned char b = c;
@@ -385,7 +393,7 @@ void DotPlot::regen_image() {
         QString imgFile = QString("%1.png").arg(g_currentfile);
 
         if (!img.save(imgFile)) {
-            printf("Failed to save sample image: %s\n", imgFile.toLocal8Bit().constData());
+            printf("Failed to save sample image: '%s'\n", imgFile.toLocal8Bit().constData());
         }
     }
 

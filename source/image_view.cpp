@@ -26,9 +26,9 @@
 #include "bayer.h"
 
 
-ImageView::ImageView(QWidget *p)
+CImageView::CImageView(QWidget *p)
         : QLabel(p),
-          dat_(nullptr), dat_n_(0), inverted_(true) {
+          m_Data(nullptr), m_Size(0), m_Inverted(true) {
     {
         auto layout = new QGridLayout(this);
         {
@@ -42,7 +42,7 @@ ImageView::ImageView(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(0, 100000);
             sb->setValue(0);
-            offset_ = sb;
+            m_Offset = sb;
             layout->addWidget(sb, 0, 1);
         }
         {
@@ -56,7 +56,7 @@ ImageView::ImageView(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 10000);
             sb->setValue(512);
-            width_ = sb;
+            m_Width = sb;
             layout->addWidget(sb, 1, 1);
         }
         {
@@ -109,28 +109,28 @@ ImageView::ImageView(QWidget *p)
             cb->setCurrentIndex(0);
             cb->setEditable(false);
             cb->setFixedWidth(cb->width() * 1.5);
-            type_ = cb;
+            m_Type = cb;
             layout->addWidget(cb, 2, 1);
         }
 
         layout->setColumnStretch(2, 1);
         layout->setRowStretch(3, 1);
 
-        QObject::connect(offset_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(width_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(type_, SIGNAL(currentIndexChanged(int)), this, SLOT(parameters_changed()));
+        QObject::connect(m_Offset, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_Width, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_Type, SIGNAL(currentIndexChanged(int)), this, SLOT(parametersChanged()));
     }
 }
 
-void ImageView::setImage(QImage &img) {
-    img_ = img;
+void CImageView::setImage(QImage &img) {
+    m_Image = img;
 
-    update_pix();
+    updatePixmap();
 
     update();
 }
 
-void ImageView::paintEvent(QPaintEvent *e) {
+void CImageView::paintEvent(QPaintEvent *e) {
     QLabel::paintEvent(e);
 
     QPainter p(this);
@@ -141,39 +141,39 @@ void ImageView::paintEvent(QPaintEvent *e) {
     }
 }
 
-void ImageView::resizeEvent(QResizeEvent *e) {
+void CImageView::resizeEvent(QResizeEvent *e) {
     QLabel::resizeEvent(e);
 
-    update_pix();
+    updatePixmap();
 }
 
-void ImageView::update_pix() {
-    if (img_.isNull()) return;
+void CImageView::updatePixmap() {
+    if (m_Image.isNull()) return;
 
     int vw = width();
     int vh = height();
-    pix_ = QPixmap::fromImage(img_).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
-    setPixmap(pix_);
+    m_Pixmap = QPixmap::fromImage(m_Image).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
+    setPixmap(m_Pixmap);
 }
 
 
-void ImageView::setData(const unsigned char *dat, long n) {
-    dat_ = dat;
-    dat_n_ = n;
+void CImageView::setData(const unsigned char *dat, long n) {
+    m_Data = dat;
+    m_Size = n;
 
-    regen_image();
+    regenImage();
 }
 
-void ImageView::regen_image() {
-    parameters_changed();
+void CImageView::regenImage() {
+    parametersChanged();
 }
 
-void ImageView::parameters_changed() {
-    int offset = offset_->value();
-    int w = width_->value();
+void CImageView::parametersChanged() {
+    int offset = m_Offset->value();
+    int w = m_Width->value();
 
     dtype_t t;
-    QString s = type_->currentText();
+    QString s = m_Type->currentText();
     if (s == "RGB 8") t = dtype_t::RGB8;
     else if (s == "RGB 12") t = dtype_t::RGB12;
     else if (s == "RGB 16") t = dtype_t::RGB16;
@@ -219,8 +219,8 @@ void ImageView::parameters_changed() {
 
     switch (t) {
         case dtype_t::RGB8: {
-            auto dat_u8 = dat_ + offset;
-            int n = (dat_n_ - offset) / 1 / 3;
+            auto dat_u8 = m_Data + offset;
+            int n = (m_Size - offset) / 1 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -234,8 +234,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::RGB12: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 3;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -249,8 +249,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::RGB16: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 3;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -264,8 +264,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::RGBA8: {
-            auto dat_u8 = (const unsigned char *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 1 / 4;
+            auto dat_u8 = (const unsigned char *) (m_Data + offset);
+            int n = (m_Size - offset) / 1 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -279,8 +279,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::RGBA12: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 4;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -294,8 +294,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::RGBA16: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 4;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -309,8 +309,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::BGR8: {
-            auto dat_u8 = (const unsigned char *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 1 / 3;
+            auto dat_u8 = (const unsigned char *) (m_Data + offset);
+            int n = (m_Size - offset) / 1 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -324,8 +324,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::BGR12: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 3;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -339,8 +339,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::BGR16: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 3;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 3;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -354,8 +354,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::BGRA8: {
-            auto dat_u8 = (const unsigned char *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 1 / 4;
+            auto dat_u8 = (const unsigned char *) (m_Data + offset);
+            int n = (m_Size - offset) / 1 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -369,8 +369,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::BGRA12: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 4;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -384,8 +384,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::BGRA16: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2 / 4;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2 / 4;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -399,8 +399,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::GREY8: {
-            auto dat_u8 = (const unsigned char *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 1;
+            auto dat_u8 = (const unsigned char *) (m_Data + offset);
+            int n = (m_Size - offset) / 1;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -415,8 +415,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::GREY12: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -431,8 +431,8 @@ void ImageView::parameters_changed() {
         }
             break;
         case dtype_t::GREY16: {
-            auto dat_u16 = (const unsigned short *) (dat_ + offset);
-            int n = (dat_n_ - offset) / 2;
+            auto dat_u16 = (const unsigned short *) (m_Data + offset);
+            int n = (m_Size - offset) / 2;
             img = QImage(w, n / w + 1, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -470,10 +470,10 @@ void ImageView::parameters_changed() {
         case dtype_t::BAYER8_21:
         case dtype_t::BAYER8_22:
         case dtype_t::BAYER8_23: {
-            int h = dat_n_ / w + 1;
+            int h = m_Size / w + 1;
             //int bayer_n = w * h;
 
-            auto dat_u8 = (const unsigned char *) (dat_ + offset);
+            auto dat_u8 = (const unsigned char *) (m_Data + offset);
 
             const unsigned char *bayer = dat_u8;
             auto rgb = new unsigned char[w * h * 3];
@@ -554,7 +554,7 @@ void ImageView::parameters_changed() {
             }
             bayerBG(bayer, h, w, perm, rgb);
 
-            int n = (dat_n_ - offset) / 1;
+            int n = (m_Size - offset) / 1;
             img = QImage(w, h, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
@@ -571,7 +571,7 @@ void ImageView::parameters_changed() {
             abort();
     }
 
-    if (inverted_) {
+    if (m_Inverted) {
         img = img.mirrored(true);
     }
     setImage(img);

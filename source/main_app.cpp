@@ -43,14 +43,14 @@
 
 static int scroller_w = 16 * 8;
 
-void MainApp::toggleFullScreen() {
+void CMain::toggleFullScreen() {
 	if (!isFullScreen()) {
-		return_to_maximized = isMaximized();
+		m_ReturnToMaximized = isMaximized();
 	}
-	if (isFullScreen() && !return_to_maximized) {
+	if (isFullScreen() && !m_ReturnToMaximized) {
 		showNormal();
 	}
-	else if (isFullScreen() && return_to_maximized) {
+	else if (isFullScreen() && m_ReturnToMaximized) {
 		showMaximized();
 	}
 	else {
@@ -58,23 +58,23 @@ void MainApp::toggleFullScreen() {
 	}
 }
 
-void MainApp::toggleLightMode()
+void CMain::toggleLightMode()
 {
     loadStyle(":/qstyle/light/style.qss");
     QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
     s.setValue("theme/darkMode", "0");
 }
 
-void MainApp::toggleDarkMode()
+void CMain::toggleDarkMode()
 {
     loadStyle(":/qstyle/dark/style.qss");
     QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
     s.setValue("theme/darkMode", "1");
 }
 
-MainApp::MainApp(QWidget *p)
-        : QDialog(p), cur_file_(-1), bin_(nullptr), bin_len_(0), start_(0), end_(0) {
-    done_flag_ = false;
+CMain::CMain(QWidget *p)
+        : QDialog(p), m_CurrentFile(-1), m_Data(nullptr), m_Size(0), m_Start(0), m_End(0) {
+    m_DoneFlag = false;
 
     this->setSizeGripEnabled(true);
     this->setAcceptDrops(true);
@@ -114,25 +114,25 @@ MainApp::MainApp(QWidget *p)
     }
 
     {
-        overall_primary_ = new OverallView(this);
-        overall_zoomed_ = new OverallView(this);
-        plot_view_ = new PlotView(this);
+        m_OverallPrimary = new COverallView(this);
+        m_OverallZoomed = new COverallView(this);
+        m_PlotView = new CPlotView(this);
 
-        connect(overall_primary_, SIGNAL(rangeSelected(float, float)), SLOT(rangeSelected(float, float)));
+        connect(m_OverallPrimary, SIGNAL(rangeSelected(float, float)), SLOT(rangeSelected(float, float)));
 
-        overall_primary_->setFixedWidth(scroller_w);
-        overall_zoomed_->setFixedWidth(scroller_w);
-        plot_view_->setFixedWidth(scroller_w);
+        m_OverallPrimary->setFixedWidth(scroller_w);
+        m_OverallZoomed->setFixedWidth(scroller_w);
+        m_PlotView->setFixedWidth(scroller_w);
 
-        overall_zoomed_->enableSelection(false);
-        overall_zoomed_->enableHilbertCurve(false);
+        m_OverallZoomed->enableSelection(false);
+        m_OverallZoomed->enableHilbertCurve(false);
 
-        plot_view_->enableSelection(false);
+        m_PlotView->enableSelection(false);
 
         auto layout = new QHBoxLayout(p);
-        layout->addWidget(overall_primary_);
-        layout->addWidget(overall_zoomed_);
-        layout->addWidget(plot_view_);
+        layout->addWidget(m_OverallPrimary);
+        layout->addWidget(m_OverallZoomed);
+        layout->addWidget(m_PlotView);
         top_layout->addLayout(layout, 1, 0);
     }
 
@@ -140,39 +140,39 @@ MainApp::MainApp(QWidget *p)
         auto layout = new QHBoxLayout(p);
 
         {
-            cur_view_ = new QComboBox(this);
-            cur_view_->addItem("3D histogram");
-            cur_view_->addItem("2D histogram");
-            cur_view_->addItem("Binary view");
-            cur_view_->addItem("Image view");
-            cur_view_->addItem("Dot plot");
-            cur_view_->setFixedSize(cur_view_->sizeHint());
-            connect(cur_view_, SIGNAL(currentIndexChanged(int)), SLOT(switchView(int)));
-            layout->addWidget(cur_view_);
+            m_CurrentView = new QComboBox(this);
+            m_CurrentView->addItem("3D histogram");
+            m_CurrentView->addItem("2D histogram");
+            m_CurrentView->addItem("Binary view");
+            m_CurrentView->addItem("Image view");
+            m_CurrentView->addItem("Dot plot");
+            m_CurrentView->setFixedSize(m_CurrentView->sizeHint());
+            connect(m_CurrentView, SIGNAL(currentIndexChanged(int)), SLOT(switchView(int)));
+            layout->addWidget(m_CurrentView);
         }
         {
-            filename_ = new QLabel(this);
-            layout->addWidget(filename_);
+            m_Filename = new QLabel(this);
+            layout->addWidget(m_Filename);
         }
 
         top_layout->addLayout(layout, 0, 1);
     }
 
     {
-        histogram_3d_ = new Histogram3dView(this);
-        histogram_2d_ = new Histogram2dView(this);
-        binary_viewer_ = new BinaryViewer(this);
-        image_view_ = new ImageView(this);
-        dot_plot_ = new DotPlot(this);
+        m_Histogram3D = new CHistogram3D(this);
+        m_Histogram2D = new CHistogram2D(this);
+        m_HexView = new CHexView(this);
+        m_ImageView = new CImageView(this);
+        m_DotPlot = new CDotPlot(this);
 
-        views_.push_back(histogram_3d_);
-        views_.push_back(histogram_2d_);
-        views_.push_back(binary_viewer_);
-        views_.push_back(image_view_);
-        views_.push_back(dot_plot_);
+        m_Views.push_back(m_Histogram3D);
+        m_Views.push_back(m_Histogram2D);
+        m_Views.push_back(m_HexView);
+        m_Views.push_back(m_ImageView);
+        m_Views.push_back(m_DotPlot);
 
         auto layout = new QHBoxLayout(p);
-        for (const auto &j : views_) {
+        for (const auto &j : m_Views) {
             layout->addWidget(j);
         }
 
@@ -184,16 +184,16 @@ MainApp::MainApp(QWidget *p)
     setLayout(top_layout);
 }
 
-MainApp::~MainApp() {
+CMain::~CMain() {
     quit();
 }
 
-void MainApp::resizeEvent(QResizeEvent *e) {
+void CMain::resizeEvent(QResizeEvent *e) {
     QDialog::resizeEvent(e);
-    update_views();
+    updateViews();
 }
 
-void MainApp::dropEvent(QDropEvent* ev)
+void CMain::dropEvent(QDropEvent* ev)
 {
     QList<QUrl> urls = ev->mimeData()->urls();
     if (!urls.empty()) {
@@ -201,32 +201,32 @@ void MainApp::dropEvent(QDropEvent* ev)
         for (QUrl url : urls) {
             list.append(url.toLocalFile());
         }
-        load_files(list);
+        loadFiles(list);
     }
 }
 
-void MainApp::dragEnterEvent(QDragEnterEvent* ev)
+void CMain::dragEnterEvent(QDragEnterEvent* ev)
 {
     ev->acceptProposedAction();
 }
 
-void MainApp::quit() {
-    if (!done_flag_) {
-        done_flag_ = true;
+void CMain::quit() {
+    if (!m_DoneFlag) {
+        m_DoneFlag = true;
 
         exit(EXIT_SUCCESS);
     }
 }
 
-void MainApp::reject() {
+void CMain::reject() {
     quit();
 }
 
-bool MainApp::load_file(const QString &filename) {
-    if (files_.size() > 1) {
-        filename_->setText(QString("%1/%2: %3").arg(cur_file_ + 1).arg(files_.size()).arg(filename));
+bool CMain::loadFile(const QString &filename) {
+    if (m_FileList.size() > 1) {
+        m_Filename->setText(QString("%1/%2: %3").arg(m_CurrentFile + 1).arg(m_FileList.size()).arg(filename));
     } else {
-        filename_->setText(filename);
+        m_Filename->setText(filename);
     }
     g_currentfile = filename;
 
@@ -239,64 +239,64 @@ bool MainApp::load_file(const QString &filename) {
     size_t len = ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    if (bin_ != nullptr) {
-        delete[] bin_;
-        bin_ = nullptr;
-        bin_len_ = 0;
-        start_ = 0;
-        end_ = 0;
+    if (m_Data != nullptr) {
+        delete[] m_Data;
+        m_Data = nullptr;
+        m_Size = 0;
+        m_Start = 0;
+        m_End = 0;
     }
 
-    bin_ = new unsigned char[len];
-    bin_len_ = fread(bin_, 1, len, f);
+    m_Data = new unsigned char[len];
+    m_Size = fread(m_Data, 1, len, f);
     fclose(f);
 
-    if (len != bin_len_) {
-        printf("premature read %zu of %zu\n", bin_len_, len);
+    if (len != m_Size) {
+        printf("premature read %zu of %zu\n", m_Size, len);
     }
 
-    start_ = 0;
-    end_ = bin_len_;
+    m_Start = 0;
+    m_End = m_Size;
 
-    update_views();
+    updateViews();
 
     return true;
 }
 
-bool MainApp::load_files(const QStringList &filenames) {
-    files_ = filenames;
-    cur_file_ = -1;
+bool CMain::loadFiles(const QStringList &filenames) {
+    m_FileList = filenames;
+    m_CurrentFile = -1;
     return nextFile();
 }
 
-bool MainApp::prevFile() {
+bool CMain::prevFile() {
     bool rv = false;
-    while (cur_file_ > 0 && !rv) {
-        cur_file_--;
-        rv = load_file(files_[cur_file_]);
+    while (m_CurrentFile > 0 && !rv) {
+        m_CurrentFile--;
+        rv = loadFile(m_FileList[m_CurrentFile]);
     }
     return rv;
 }
 
-bool MainApp::nextFile() {
+bool CMain::nextFile() {
     bool rv = false;
-    while (cur_file_ + 1 < files_.size() && !rv) {
-        cur_file_++;
-        rv = load_file(files_[cur_file_]);
+    while (m_CurrentFile + 1 < m_FileList.size() && !rv) {
+        m_CurrentFile++;
+        rv = loadFile(m_FileList[m_CurrentFile]);
     }
     return rv;
 }
 
-void MainApp::loadFile() {
+void CMain::loadFile() {
     QStringList files = QFileDialog::getOpenFileNames(
             this,
             "Select one or more files to open");
     if (!files.empty()) {
-        load_files(files);
+        loadFiles(files);
     }
 }
 
-bool MainApp::loadStyle(QString s)
+bool CMain::loadStyle(QString s)
 {
     QFile f(s);
     bool rv = false;
@@ -315,51 +315,51 @@ bool MainApp::loadStyle(QString s)
     return rv;
 }
 
-void MainApp::update_views(bool update_iv1) {
-    if (update_iv1) overall_primary_->clear();
+void CMain::updateViews(bool update_iv1) {
+    if (update_iv1) m_OverallPrimary->clear();
 
-    if (bin_ == nullptr) return;
+    if (m_Data == nullptr) return;
 
     // iv1 shows the entire file, iv2 shows the current segment
-    if (update_iv1) overall_primary_->set_data(bin_ + 0, bin_len_);
-    overall_zoomed_->set_data(bin_ + start_, end_ - start_);
+    if (update_iv1) m_OverallPrimary->set_data(m_Data + 0, m_Size);
+    m_OverallZoomed->set_data(m_Data + m_Start, m_End - m_Start);
 
     {
         long n;
-        auto dd = generate_entropy(bin_ + start_, end_ - start_, n);
+        auto dd = generate_entropy(m_Data + m_Start, m_End - m_Start, n);
         if (dd) {
-            plot_view_->set_data(0, dd, n);
+            m_PlotView->setData(0, dd, n);
             delete[] dd;
         }
     }
 
     {
-        auto dd = generate_histo(bin_ + start_, end_ - start_);
+        auto dd = generate_histo(m_Data + m_Start, m_End - m_Start);
         if (dd) {
-            plot_view_->set_data(1, dd, 256, false);
+            m_PlotView->setData(1, dd, 256, false);
             delete[] dd;
         }
     }
 
-    if (histogram_3d_->isVisible()) histogram_3d_->setData(bin_ + start_, end_ - start_);
-    if (histogram_2d_->isVisible()) histogram_2d_->setData(bin_ + start_, end_ - start_);
-    if (binary_viewer_->isVisible()) {
+    if (m_Histogram3D->isVisible()) m_Histogram3D->setData(m_Data + m_Start, m_End - m_Start);
+    if (m_Histogram2D->isVisible()) m_Histogram2D->setData(m_Data + m_Start, m_End - m_Start);
+    if (m_HexView->isVisible()) {
 //        binary_viewer_->setData(bin_ + start_, end_ - start_);
-        binary_viewer_->setData(bin_, end_);
-        binary_viewer_->setStart(start_ / 16);
+        m_HexView->setData(m_Data, m_End);
+        m_HexView->setStart(m_Start / 16);
     }
-    if (image_view_->isVisible()) image_view_->setData(bin_ + start_, end_ - start_);
-    if (dot_plot_->isVisible()) dot_plot_->setData(bin_ + start_, end_ - start_);
+    if (m_ImageView->isVisible()) m_ImageView->setData(m_Data + m_Start, m_End - m_Start);
+    if (m_DotPlot->isVisible()) m_DotPlot->setData(m_Data + m_Start, m_End - m_Start);
 }
 
-void MainApp::rangeSelected(float s, float e) {
-    start_ = s * bin_len_;
-    end_ = e * bin_len_;
-    update_views(false);
+void CMain::rangeSelected(float s, float e) {
+    m_Start = s * m_Size;
+    m_End = e * m_Size;
+    updateViews(false);
 }
 
-void MainApp::switchView(int ind) {
-    for (const auto &j : views_) {
+void CMain::switchView(int ind) {
+    for (const auto &j : m_Views) {
         j->hide();
     }
 
@@ -369,66 +369,66 @@ void MainApp::switchView(int ind) {
             ind = settings.value("last_view", 0).toInt();
         }
         ind = std::max(ind, 0);
-        ind = std::min(ind, int(views_.size() - 1));
+        ind = std::min(ind, int(m_Views.size() - 1));
         settings.setValue("last_view", ind);
-        cur_view_->blockSignals(true);
-        cur_view_->setCurrentIndex(ind);
-        cur_view_->blockSignals(false);
+        m_CurrentView->blockSignals(true);
+        m_CurrentView->setCurrentIndex(ind);
+        m_CurrentView->blockSignals(false);
     }
 
-    views_[ind]->show();
-    update_views(false);
+    m_Views[ind]->show();
+    updateViews(false);
 }
 
-void MainApp::keyPressEvent(QKeyEvent* event)
+void CMain::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key())
     {
     case (Qt::Key_W):
     case (Qt::Key_8):
     {
-        histogram_3d_->setTransformFlags(MOVE_UP);
+        m_Histogram3D->setTransformFlags(MOVE_UP);
         break;
     }
     case (Qt::Key_S):
     case (Qt::Key_5):
     case (Qt::Key_2):
     {
-        histogram_3d_->setTransformFlags(MOVE_DOWN);
+        m_Histogram3D->setTransformFlags(MOVE_DOWN);
         break;
     }
     case (Qt::Key_A):
     case (Qt::Key_4):
     {
-        histogram_3d_->setTransformFlags(MOVE_LEFT);
+        m_Histogram3D->setTransformFlags(MOVE_LEFT);
         break;
     }
     case (Qt::Key_D):
     case (Qt::Key_6):
     {
-        histogram_3d_->setTransformFlags(MOVE_RIGHT);
+        m_Histogram3D->setTransformFlags(MOVE_RIGHT);
         break;
     }
     case (Qt::Key_Q):
     case (Qt::Key_7):
     {
-        histogram_3d_->setTransformFlags(SCALE_DOWN);
+        m_Histogram3D->setTransformFlags(SCALE_DOWN);
         break;
     }
     case (Qt::Key_E):
     case (Qt::Key_9):
     {
-        histogram_3d_->setTransformFlags(SCALE_UP);
+        m_Histogram3D->setTransformFlags(SCALE_UP);
         break;
     }
     case (Qt::Key_1):
     {
-        histogram_3d_->setTransformFlags(SCALE_DOWN | SCALE_DOWN_Z);
+        m_Histogram3D->setTransformFlags(SCALE_DOWN | SCALE_DOWN_Z);
         break;
     }
     case (Qt::Key_3):
     {
-        histogram_3d_->setTransformFlags(SCALE_UP | SCALE_UP_Z);
+        m_Histogram3D->setTransformFlags(SCALE_UP | SCALE_UP_Z);
         break;
     }
     default:
@@ -436,55 +436,55 @@ void MainApp::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void MainApp::keyReleaseEvent(QKeyEvent* event)
+void CMain::keyReleaseEvent(QKeyEvent* event)
 {
     switch (event->key())
     {
     case (Qt::Key_W):
     case (Qt::Key_8):
     {
-        histogram_3d_->removeTransformFlags(MOVE_UP);
+        m_Histogram3D->removeTransformFlags(MOVE_UP);
         break;
     }
     case (Qt::Key_S):
     case (Qt::Key_5):
     case (Qt::Key_2):
     {
-        histogram_3d_->removeTransformFlags(MOVE_DOWN);
+        m_Histogram3D->removeTransformFlags(MOVE_DOWN);
         break;
     }
     case (Qt::Key_A):
     case (Qt::Key_4):
     {
-        histogram_3d_->removeTransformFlags(MOVE_LEFT);
+        m_Histogram3D->removeTransformFlags(MOVE_LEFT);
         break;
     }
     case (Qt::Key_D):
     case (Qt::Key_6):
     {
-        histogram_3d_->removeTransformFlags(MOVE_RIGHT);
+        m_Histogram3D->removeTransformFlags(MOVE_RIGHT);
         break;
     }
     case (Qt::Key_Q):
     case (Qt::Key_7):
     {
-        histogram_3d_->removeTransformFlags(SCALE_DOWN);
+        m_Histogram3D->removeTransformFlags(SCALE_DOWN);
         break;
     }
     case (Qt::Key_E):
     case (Qt::Key_9):
     {
-        histogram_3d_->removeTransformFlags(SCALE_UP);
+        m_Histogram3D->removeTransformFlags(SCALE_UP);
         break;
     }
     case (Qt::Key_1):
     {
-        histogram_3d_->removeTransformFlags(SCALE_DOWN | SCALE_DOWN_Z);
+        m_Histogram3D->removeTransformFlags(SCALE_DOWN | SCALE_DOWN_Z);
         break;
     }
     case (Qt::Key_3):
     {
-        histogram_3d_->removeTransformFlags(SCALE_UP | SCALE_UP_Z);
+        m_Histogram3D->removeTransformFlags(SCALE_UP | SCALE_UP_Z);
         break;
     }
     default:

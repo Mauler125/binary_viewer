@@ -22,7 +22,7 @@
 
 #include <string>
 
-enum class histo_dtype_t {
+enum class HistoDtype_t {
     NONE,
     U8,
     U12,
@@ -33,14 +33,11 @@ enum class histo_dtype_t {
     F64
 };
 
-histo_dtype_t string_to_histo_dtype(const std::string &s);
+HistoDtype_t string_to_histo_dtype(const std::string &s);
 
-int *generate_histo_2d(const unsigned char *dat_u8, long n, histo_dtype_t dtype);
-
-int *generate_histo_3d(const unsigned char *dat_u8, long n, histo_dtype_t dtype, bool overlap = true);
-
+int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype);
+int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, bool overlap = true);
 float *generate_histo(const unsigned char *dat_u8, long n);
-
 float *generate_entropy(const unsigned char *dat_u8, long n, long &rv_len, int bs = 256);
 
 #endif

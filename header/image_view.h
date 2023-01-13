@@ -25,37 +25,26 @@
 #include <QPixmap>
 
 class QSpinBox;
-
 class QComboBox;
 
-class ImageView : public QLabel {
+class CImageView : public QLabel {
 Q_OBJECT
 public:
-    explicit ImageView(QWidget *p = nullptr);
-
-    ~ImageView() override = default;
+    explicit CImageView(QWidget *p = nullptr);
+    ~CImageView() override = default;
 
 public slots:
-
     void setData(const unsigned char *dat, long n);
-
-    void parameters_changed();
+    void parametersChanged();
 
 protected slots:
-
     void setImage(QImage &img);
-
-    void regen_image();
+    void regenImage();
 
 protected:
-    QImage img_;
-    QPixmap pix_;
-
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *e) override;
-
-    void update_pix();
+    void updatePixmap();
 
     typedef enum class dtype_t {
         NONE, RGB8, RGB12, RGB16, RGBA8, RGBA12, RGBA16, BGR8, BGR12, BGR16, BGRA8, BGRA12, BGRA16, GREY8, GREY12, GREY16,
@@ -85,11 +74,14 @@ protected:
         BAYER8_23
     } dtype_t;
 
-    QSpinBox *offset_, *width_;
-    QComboBox *type_;
-    const unsigned char *dat_;
-    long dat_n_;
-    bool inverted_;
+    QSpinBox *m_Offset, *m_Width;
+    QComboBox *m_Type;
+    const unsigned char *m_Data;
+    long m_Size;
+    bool m_Inverted;
+
+    QImage m_Image;
+    QPixmap m_Pixmap;
 };
 
 #endif

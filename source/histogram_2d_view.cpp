@@ -32,9 +32,9 @@ using std::signbit;
 using std::isinf;
 
 
-Histogram2dView::Histogram2dView(QWidget *p)
+CHistogram2D::CHistogram2D(QWidget *p)
         : QLabel(p),
-          hist_(nullptr), dat_(nullptr), dat_n_(0) {
+          m_Histogram(nullptr), m_Data(nullptr), m_Size(0) {
     {
         auto layout = new QGridLayout(this);
         {
@@ -48,7 +48,7 @@ Histogram2dView::Histogram2dView(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 10000);
             sb->setValue(4);
-            thresh_ = sb;
+            m_Threshold = sb;
             layout->addWidget(sb, 0, 1);
         }
         {
@@ -62,7 +62,7 @@ Histogram2dView::Histogram2dView(QWidget *p)
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 10000);
             sb->setValue(100);
-            scale_ = sb;
+            m_Scale = sb;
             layout->addWidget(sb, 1, 1);
         }
         {
@@ -81,32 +81,32 @@ Histogram2dView::Histogram2dView(QWidget *p)
             cb->addItem("F64");
             cb->setCurrentIndex(0);
             cb->setEditable(false);
-            type_ = cb;
+            m_Type = cb;
             layout->addWidget(cb, 2, 1);
         }
 
         layout->setColumnStretch(2, 1);
         layout->setRowStretch(3, 1);
 
-        QObject::connect(thresh_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(scale_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-        QObject::connect(type_, SIGNAL(currentIndexChanged(int)), this, SLOT(regen_histo()));
+        QObject::connect(m_Threshold, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_Scale, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+        QObject::connect(m_Type, SIGNAL(currentIndexChanged(int)), this, SLOT(regenHisto()));
     }
 }
 
-Histogram2dView::~Histogram2dView() {
-    delete[] hist_;
+CHistogram2D::~CHistogram2D() {
+    delete[] m_Histogram;
 }
 
-void Histogram2dView::setImage(QImage &img) {
-    img_ = img;
+void CHistogram2D::setImage(QImage &img) {
+    m_Image = img;
 
-    update_pix();
+    updatePixmap();
 
     update();
 }
 
-void Histogram2dView::paintEvent(QPaintEvent *e) {
+void CHistogram2D::paintEvent(QPaintEvent *e) {
     QLabel::paintEvent(e);
 
     QPainter p(this);
@@ -117,41 +117,41 @@ void Histogram2dView::paintEvent(QPaintEvent *e) {
     }
 }
 
-void Histogram2dView::resizeEvent(QResizeEvent *e) {
+void CHistogram2D::resizeEvent(QResizeEvent *e) {
     QLabel::resizeEvent(e);
 
-    update_pix();
+    updatePixmap();
 }
 
-void Histogram2dView::update_pix() {
-    if (img_.isNull()) return;
+void CHistogram2D::updatePixmap() {
+    if (m_Image.isNull()) return;
 
     int vw = width();
     int vh = height();
-    pix_ = QPixmap::fromImage(img_).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
-    setPixmap(pix_);
+    m_Pixmap = QPixmap::fromImage(m_Image).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
+    setPixmap(m_Pixmap);
 }
 
-void Histogram2dView::setData(const unsigned char *dat, long n) {
-    dat_ = dat;
-    dat_n_ = n;
+void CHistogram2D::setData(const unsigned char *dat, long n) {
+    m_Data = dat;
+    m_Size = n;
 
-    regen_histo();
+    regenHisto();
 }
 
-void Histogram2dView::regen_histo() {
-    delete[] hist_;
-    hist_ = nullptr;
+void CHistogram2D::regenHisto() {
+    delete[] m_Histogram;
+    m_Histogram = nullptr;
 
-    histo_dtype_t t = string_to_histo_dtype(type_->currentText().toStdString());
-    hist_ = generate_histo_2d(dat_, dat_n_, t);
+    HistoDtype_t t = string_to_histo_dtype(m_Type->currentText().toStdString());
+    m_Histogram = generate_histo_2d(m_Data, m_Size, t);
 
-    parameters_changed();
+    parametersChanged();
 }
 
-void Histogram2dView::parameters_changed() {
-    int thresh = thresh_->value();
-    float scale_factor = scale_->value();
+void CHistogram2D::parametersChanged() {
+    int thresh = m_Threshold->value();
+    float scale_factor = m_Scale->value();
 
     QImage img(256, 256, QImage::Format_RGB32);
     img.fill(0);
@@ -159,8 +159,8 @@ void Histogram2dView::parameters_changed() {
     auto p = (unsigned int *) img.bits();
 
     for (int i = 0; i < 256 * 256; i++, p++) {
-        if (hist_[i] >= thresh) {
-            float cc = hist_[i] / scale_factor;
+        if (m_Histogram[i] >= thresh) {
+            float cc = m_Histogram[i] / scale_factor;
             cc += .2;
             if (cc > 1.) cc = 1.;
             int c = cc * 255 + .5;

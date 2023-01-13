@@ -20,61 +20,40 @@
 #ifndef _MAIN_APP_H_
 #define _MAIN_APP_H_
 
+#define NAMEOF(s) #s
+
 #include <QDialog>
 
-class OverallView;
-
-class Histogram2dView;
-
-class ImageView;
-
-class BinaryViewer;
-
-class DotPlot;
-
-class Histogram3dView;
-
-class PlotView;
-
+class COverallView;
+class CHistogram2D;
+class CImageView;
+class CHexView;
+class CDotPlot;
+class CHistogram3D;
+class CPlotView;
 class QComboBox;
-
 class QLabel;
 
-class MainApp : public QDialog {
+class CMain : public QDialog {
 Q_OBJECT
 public:
-    explicit MainApp(QWidget *p = nullptr);
-
-    ~MainApp() override;
-
-    bool load_file(const QString &filename);
-
-    bool load_files(const QStringList &filenames);
-
+    explicit CMain(QWidget *p = nullptr);
+    ~CMain() override;
+    bool loadFile(const QString &filename);
+    bool loadFiles(const QStringList &filenames);
     static bool loadStyle(QString s);
 
-private:
-
-	bool return_to_maximized;
-
 public slots:
-
     void reject() override;
 
 private slots:
-
 	void toggleFullScreen();
-
 	void toggleDarkMode();
-
 	void toggleLightMode();
 
 protected slots:
-
     void quit();
-
     void rangeSelected(float, float);
-
     void switchView(int);
 
     bool nextFile();
@@ -82,42 +61,42 @@ protected slots:
     void loadFile();
 
 protected:
-    QComboBox *cur_view_;
-    std::vector<QWidget *> views_;
+    //    void updatePositions(bool resized = false);
 
-    OverallView *overall_primary_;
-    OverallView *overall_zoomed_;
-    PlotView *plot_view_;
-    Histogram2dView *histogram_2d_;
-    BinaryViewer *binary_viewer_;
-    ImageView *image_view_;
-    DotPlot *dot_plot_;
-    Histogram3dView *histogram_3d_;
-
-    QLabel *filename_;
-    QStringList files_;
-    int cur_file_;
-
-    unsigned char *bin_;
-    size_t bin_len_;
-
-    bool done_flag_;
-
-    size_t start_;
-    size_t end_;
-
-//    void updatePositions(bool resized = false);
-
-    void resizeEvent(QResizeEvent *e) override;
-
+    void resizeEvent(QResizeEvent* e) override;
     void dropEvent(QDropEvent* ev) override;
     void dragEnterEvent(QDragEnterEvent* ev) override;
 
     void keyPressEvent(QKeyEvent* event);
-
     void keyReleaseEvent(QKeyEvent* event);
 
-    void update_views(bool update_iv1 = true);
+    void updateViews(bool update_iv1 = true);
+
+    QComboBox *m_CurrentView;
+
+    COverallView *m_OverallPrimary;
+    COverallView *m_OverallZoomed;
+    CPlotView *m_PlotView;
+    CHistogram2D *m_Histogram2D;
+    CHexView *m_HexView;
+    CImageView *m_ImageView;
+    CDotPlot *m_DotPlot;
+    CHistogram3D *m_Histogram3D;
+    QLabel *m_Filename;
+
+    unsigned char* m_Data;
+    size_t m_Size;
+
+    size_t m_Start;
+    size_t m_End;
+
+    int m_CurrentFile;
+
+    bool m_DoneFlag;
+    bool m_ReturnToMaximized;
+
+    QStringList m_FileList;
+    std::vector<QWidget*> m_Views;
 };
 
 inline QString g_currentfile;

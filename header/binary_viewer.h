@@ -22,70 +22,58 @@
 
 #include <QWidget>
 
-class BinaryView;
-
+class CHexLogic;
 class QScrollBar;
 
-class BinaryView : public QWidget {
+class CHexLogic : public QWidget {
 Q_OBJECT
 public:
-    explicit BinaryView(QWidget *p = nullptr);
-
-    ~BinaryView() override = default;
+    explicit CHexLogic(QWidget *p = nullptr);
+    ~CHexLogic() override = default;
 
     int rowHeight() const;
 
 public slots:
-
     void setData(const unsigned char *dat, long n);
-
     void setStart(int);
 
 protected slots:
 
 protected:
-    QFont font_;
-
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *) override;
-
-    const unsigned char *dat_;
-    long dat_n_;
-    int off_;
 
     int columnStart(int c, int fw) const;
+
+    const unsigned char *m_Data;
+    long m_Size;
+    int m_Offset;
+    QFont m_Font;
 };
 
-class BinaryViewer : public QWidget {
+class CHexView : public QWidget {
 Q_OBJECT
 public:
-    explicit BinaryViewer(QWidget *p = nullptr);
-
-    ~BinaryViewer() override;
+    explicit CHexView(QWidget *p = nullptr);
+    ~CHexView() override;
 
 public slots:
-
     void setData(const unsigned char *dat, long n);
-
     void setStart(int);
 
 protected slots:
 
 protected:
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *) override;
-
     void enterEvent(QEvent *) override;
-
     void wheelEvent(QWheelEvent *) override;
 
-    BinaryView *bv_;
-    QScrollBar *sb_;
+    CHexLogic *m_HexLogic;
+    QScrollBar *m_ScrollBar;
 
-    const unsigned char *dat_;
-    long dat_n_;
+    const unsigned char *m_Data;
+    long m_Size;
 };
 
 #endif

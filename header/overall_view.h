@@ -24,17 +24,16 @@
 #include <QImage>
 #include <QPixmap>
 
-class OverallView : public QLabel {
+class COverallView : public QLabel {
 Q_OBJECT
 public:
-    explicit OverallView(QWidget *p = nullptr);
+    explicit COverallView(QWidget *p = nullptr);
 
-    ~OverallView() override = default;
+    ~COverallView() override = default;
 
 public slots:
 
     void setImage(QImage &img);
-
     void set_data(const unsigned char *bin, long len, bool reset_selection = true);
 
     void enableSelection(bool);
@@ -44,36 +43,30 @@ public slots:
 protected slots:
 
 protected:
-    QImage img_;
-    QPixmap pix_;
-
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *e) override;
-
     void mousePressEvent(QMouseEvent *event) override;
-
     void mouseMoveEvent(QMouseEvent *event) override;
-
     void mouseReleaseEvent(QMouseEvent *event) override;
-
     void update_pix();
 
-    float m1_, m2_;
-    int px_, py_;
+    float m_UpperBandPos, m_LowerBandPos;
+    int m_MousePosX, m_MousePosY;
     enum class allow_selection_{
         NONE, M1_MOVING, M2_MOVING, M12_MOVING
-    } s_;
-    bool allow_selection_;
+    } m_SelectionType;
 
-    bool use_byte_classes_;
-    bool use_hilbert_curve_;
+    bool m_AllowSelection;
+    bool m_UseByteClasses;
+    bool m_UseHilbertCurve;
 
-    const unsigned char *dat_;
-    long len_;
+    const unsigned char *m_Data;
+    long m_Size;
+
+    QImage m_Image;
+    QPixmap m_Pixmap;
 
 signals:
-
     void rangeSelected(float, float);
 };
 

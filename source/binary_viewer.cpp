@@ -25,20 +25,20 @@
 #include "binary_viewer.h"
 
 
-BinaryView::BinaryView(QWidget *p)
+CHexLogic::CHexLogic(QWidget *p)
         : QWidget(p),
-          dat_(nullptr), dat_n_(0), off_(0) {
+          m_Data(nullptr), m_Size(0), m_Offset(0) {
 }
 
-int BinaryView::rowHeight() const {
-    QFontMetrics fm(font_);
+int CHexLogic::rowHeight() const {
+    QFontMetrics fm(m_Font);
 
     int fh = fm.height();
 
     return fh;
 }
 
-int BinaryView::columnStart(int c, int fw) const {
+int CHexLogic::columnStart(int c, int fw) const {
     int x = 0;
 
     if (c < 0) {
@@ -66,7 +66,7 @@ int BinaryView::columnStart(int c, int fw) const {
     return x;
 }
 
-void BinaryView::paintEvent(QPaintEvent *e) {
+void CHexLogic::paintEvent(QPaintEvent *e) {
     QWidget::paintEvent(e);
 
     QPainter p(this);
@@ -74,8 +74,8 @@ void BinaryView::paintEvent(QPaintEvent *e) {
     int w = width();
     int h = height();
 
-    p.setFont(font_);
-    QFontMetrics fm(font_);
+    p.setFont(m_Font);
+    QFontMetrics fm(m_Font);
 
     int fh = fm.height();
     int fw = fm.maxWidth();
@@ -88,7 +88,7 @@ void BinaryView::paintEvent(QPaintEvent *e) {
         int x = columnStart(0, fw);
         int y = (i + 1) * fh;
 
-        long pos = (off_ + i) * 16;
+        long pos = (m_Offset + i) * 16;
 
         QString s1;
         s1 = QString("0x %1 %2").arg((pos >> 16) & 0xffff, 4, 16, QChar('0')).arg(pos & 0xffff, 4, 16, QChar('0'));
@@ -99,12 +99,12 @@ void BinaryView::paintEvent(QPaintEvent *e) {
         x = columnStart(1, fw);
 
         for (int j = 0; j < 16; j++) {
-            if (pos + j >= dat_n_) break;
+            if (pos + j >= m_Size) break;
 
             if (j > 0) x += 1.2 * fw + 2 * fw;
             if (j == 16 / 2) x += 2 * fw;
 
-            unsigned char c = dat_[pos + j];
+            unsigned char c = m_Data[pos + j];
 
             int r, g, b;
             if (c == 0x00) {
@@ -140,12 +140,12 @@ void BinaryView::paintEvent(QPaintEvent *e) {
 
         p.setPen(default_pen);
         for (int j = 0; j < 16; j++) {
-            if (pos + j >= dat_n_) break;
+            if (pos + j >= m_Size) break;
 
             if (j > 0) x += 1.2 * fw + 1 * fw;
             if (j == 16 / 2) x += 2 * fw;
 
-            unsigned char c = dat_[pos + j];
+            unsigned char c = m_Data[pos + j];
 
             if (!(0x20 <= c && c <= 0x7e)) {
                 p.setPen(QPen(0xff606060));
@@ -167,7 +167,7 @@ void BinaryView::paintEvent(QPaintEvent *e) {
     p.drawRect(0, 0, width() - 1, height() - 1);
 }
 
-void BinaryView::resizeEvent(QResizeEvent *e) {
+void CHexLogic::resizeEvent(QResizeEvent *e) {
     QWidget::resizeEvent(e);
 
     QFont font("Courier New");
@@ -178,78 +178,78 @@ void BinaryView::resizeEvent(QResizeEvent *e) {
         int mw = columnStart(-1, fw);
         if (mw < width()) break;
     }
-    font_ = font;
+    m_Font = font;
 }
 
-void BinaryView::setData(const unsigned char *dat, long n) {
-    dat_ = dat;
-    dat_n_ = n;
-    off_ = 0;
+void CHexLogic::setData(const unsigned char *dat, long n) {
+    m_Data = dat;
+    m_Size = n;
+    m_Offset = 0;
     update();
 }
 
-void BinaryView::setStart(int off) {
-    off_ = off;
+void CHexLogic::setStart(int off) {
+    m_Offset = off;
     update();
 }
 
 
-BinaryViewer::BinaryViewer(QWidget *p)
+CHexView::CHexView(QWidget *p)
         : QWidget(p)
 //          hist_(nullptr), dat_(nullptr), dat_n_(0)
 {
     auto layout = new QHBoxLayout(this);
 
-    bv_ = new BinaryView(this);
-    sb_ = new QScrollBar(this);
+    m_HexLogic = new CHexLogic(this);
+    m_ScrollBar = new QScrollBar(this);
 
-    layout->addWidget(bv_);
-    layout->addWidget(sb_);
+    layout->addWidget(m_HexLogic);
+    layout->addWidget(m_ScrollBar);
 
-    sb_->setRange(0, 0);
-    sb_->setFocus();
-    sb_->setFocusPolicy(Qt::StrongFocus);
+    m_ScrollBar->setRange(0, 0);
+    m_ScrollBar->setFocus();
+    m_ScrollBar->setFocusPolicy(Qt::StrongFocus);
 
-    connect(sb_, SIGNAL(valueChanged(int)), bv_, SLOT(setStart(int)));
+    connect(m_ScrollBar, SIGNAL(valueChanged(int)), m_HexLogic, SLOT(setStart(int)));
 
     setLayout(layout);
 }
 
-BinaryViewer::~BinaryViewer() {
+CHexView::~CHexView() {
 }
 
-void BinaryViewer::paintEvent(QPaintEvent *e) {
+void CHexView::paintEvent(QPaintEvent *e) {
     QWidget::paintEvent(e);
 }
 
-void BinaryViewer::resizeEvent(QResizeEvent *e) {
+void CHexView::resizeEvent(QResizeEvent *e) {
     QWidget::resizeEvent(e);
 
-    int nvis_rows = height() / bv_->rowHeight();
+    int nvis_rows = height() / m_HexLogic->rowHeight();
     int page_step = std::max(16, nvis_rows - 2);
-    sb_->setRange(0, int(ceil(dat_n_ / 16.)) - nvis_rows + 1);
-    sb_->setPageStep(page_step);
+    m_ScrollBar->setRange(0, int(ceil(m_Size / 16.)) - nvis_rows + 1);
+    m_ScrollBar->setPageStep(page_step);
 }
 
-void BinaryViewer::setData(const unsigned char *dat, long n) {
-    dat_ = dat;
-    dat_n_ = n;
+void CHexView::setData(const unsigned char *dat, long n) {
+    m_Data = dat;
+    m_Size = n;
 
-    bv_->setData(dat, n);
-    int nvis_rows = height() / bv_->rowHeight();
-    sb_->setRange(0, int(ceil(dat_n_ / 16.)) - nvis_rows + 1);
+    m_HexLogic->setData(dat, n);
+    int nvis_rows = height() / m_HexLogic->rowHeight();
+    m_ScrollBar->setRange(0, int(ceil(m_Size / 16.)) - nvis_rows + 1);
 }
 
-void BinaryViewer::setStart(int s) {
-    sb_->setValue(s);
+void CHexView::setStart(int s) {
+    m_ScrollBar->setValue(s);
 }
 
-void BinaryViewer::enterEvent(QEvent *e) {
+void CHexView::enterEvent(QEvent *e) {
     QWidget::enterEvent(e);
-    sb_->setFocus();
+    m_ScrollBar->setFocus();
 }
 
-void BinaryViewer::wheelEvent(QWheelEvent *e) {
-    sb_->event(e);
+void CHexView::wheelEvent(QWheelEvent *e) {
+    m_ScrollBar->event(e);
     e->accept();
 }

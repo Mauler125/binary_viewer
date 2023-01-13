@@ -39,8 +39,8 @@ int main(int argc, char *argv[]) {
     QVariant darkMode = s.value("theme/darkMode", "0");
     const char* style_set = darkMode.toBool() ? ":/qstyle/dark/style.qss" : ":/qstyle/light/style.qss";
 
-    MainApp::loadStyle(style_set);
-    MainApp a;
+    CMain::loadStyle(style_set);
+    CMain a;
 
     a.setWindowTitle(base_caption);
 	a.resize(1200, 700);
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (argc == 2) {
-        if (!a.load_file(argv[1])) {
+        if (!a.loadFile(argv[1])) {
             exit(EXIT_FAILURE);
         }
     }

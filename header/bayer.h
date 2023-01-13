@@ -21,7 +21,6 @@
 #define _BAYER_H_
 
 void bayerBG(const unsigned char *bayer, int h, int w, int bayer_row_w, int perm, unsigned char *rgb, int rgb_row_w);
-
 void bayerBG(const unsigned char *bayer, int h, int w, int perm, unsigned char *rgb);
 
 #endif

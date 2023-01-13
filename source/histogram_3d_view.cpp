@@ -52,12 +52,12 @@ int mouse_y = 0;
 int n_vertices = 0;
 bool b_initialized = false;
 
-Histogram3dView::Histogram3dView(QWidget *p)
+CHistogram3D::CHistogram3D(QWidget *p)
         : QGLWidget(p)
-        , hist_(nullptr) 
-        , dat_(nullptr)
-        , dat_n_(0)
-        , flags_(0) {
+        , m_Histogram(nullptr) 
+        , m_Data(nullptr)
+        , m_Size(0)
+        , m_Flags(0) {
     auto update_timer = new QTimer(this);
     QObject::connect(update_timer, SIGNAL(timeout()), this, SLOT(updateGL())); //, Qt::QueuedConnection);
     update_timer->start(10);
@@ -77,7 +77,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         sb->setFixedWidth(sb->width() * 1.5);
         sb->setRange(1, 10000);
         sb->setValue(4);
-        thresh_ = sb;
+        m_Threshold = sb;
         layout->addWidget(sb, r, 1);
     }
     r++;
@@ -93,7 +93,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         sb->setFixedWidth(sb->width() * 1.5);
         sb->setRange(1, 10000);
         sb->setValue(100);
-        scale_ = sb;
+        m_Scale = sb;
         layout->addWidget(sb, r, 1);
     }
     r++;
@@ -115,7 +115,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         cb->addItem("F64");
         cb->setCurrentIndex(0);
         cb->setEditable(false);
-        type_ = cb;
+        m_Type = cb;
         layout->addWidget(cb, r, 1);
     }
     r++;
@@ -129,7 +129,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         auto cb = new QCheckBox(this);
         cb->setFixedSize(cb->sizeHint());
         cb->setChecked(true);
-        overlap_ = cb;
+        m_Overlap = cb;
         layout->addWidget(cb, r, 1);
     }
     r++;
@@ -143,7 +143,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         auto cb = new QCheckBox(this);
         cb->setFixedSize(cb->sizeHint());
         cb->setChecked(false);
-        color_ = cb;
+        m_Color = cb;
         layout->addWidget(cb, r, 1);
     }
     r++;
@@ -157,7 +157,7 @@ Histogram3dView::Histogram3dView(QWidget *p)
         auto cb = new QCheckBox(this);
         cb->setFixedSize(cb->sizeHint());
         cb->setChecked(false);
-        antialias_ = cb;
+        m_Antialias = cb;
         layout->addWidget(cb, r, 1);
     }
     r++;
@@ -166,39 +166,39 @@ Histogram3dView::Histogram3dView(QWidget *p)
         auto pb = new QPushButton("Resample", this);
         pb->setFixedSize(pb->sizeHint());
         layout->addWidget(pb, r, 0);
-        QObject::connect(pb, SIGNAL(clicked()), this, SLOT(regen_histo()));
+        QObject::connect(pb, SIGNAL(clicked()), this, SLOT(regenHisto()));
     }
     r++;
 
     layout->setColumnStretch(2, 1);
     layout->setRowStretch(r, 1);
 
-    QObject::connect(thresh_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-    QObject::connect(scale_, SIGNAL(valueChanged(int)), this, SLOT(parameters_changed()));
-    QObject::connect(type_, SIGNAL(currentIndexChanged(int)), this, SLOT(regen_histo()));
-    QObject::connect(overlap_, SIGNAL(toggled(bool)), this, SLOT(regen_histo()));
-    QObject::connect(color_, SIGNAL(toggled(bool)), this, SLOT(color_histo()));
-    QObject::connect(antialias_, SIGNAL(toggled(bool)), this, SLOT(initializeGL()));
+    QObject::connect(m_Threshold, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+    QObject::connect(m_Scale, SIGNAL(valueChanged(int)), this, SLOT(parametersChanged()));
+    QObject::connect(m_Type, SIGNAL(currentIndexChanged(int)), this, SLOT(regenHisto()));
+    QObject::connect(m_Overlap, SIGNAL(toggled(bool)), this, SLOT(regenHisto()));
+    QObject::connect(m_Color, SIGNAL(toggled(bool)), this, SLOT(colorHisto()));
+    QObject::connect(m_Antialias, SIGNAL(toggled(bool)), this, SLOT(initializeGL()));
 }
 
-Histogram3dView::~Histogram3dView() {
-    delete[] hist_;
+CHistogram3D::~CHistogram3D() {
+    delete[] m_Histogram;
     delete[] vertices;
     delete[] colors;
 }
 
-void Histogram3dView::setData(const unsigned char *dat, long n) {
-    dat_ = dat;
-    dat_n_ = n;
+void CHistogram3D::setData(const unsigned char *dat, long n) {
+    m_Data = dat;
+    m_Size = n;
 
-    regen_histo();
+    regenHisto();
 }
 
-void Histogram3dView::initializeGL() {
+void CHistogram3D::initializeGL() {
     glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
 
-    if (!antialias_->isChecked())
+    if (!m_Antialias->isChecked())
     {
         glDisable(GL_MULTISAMPLE);
         glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
@@ -224,7 +224,7 @@ void Histogram3dView::initializeGL() {
     b_initialized = true;
 }
 
-void Histogram3dView::resizeGL(int /*w*/, int /*h*/) {
+void CHistogram3D::resizeGL(int /*w*/, int /*h*/) {
     glMatrixMode(GL_PROJECTION);
 
     glLoadIdentity();
@@ -234,9 +234,9 @@ void Histogram3dView::resizeGL(int /*w*/, int /*h*/) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-void Histogram3dView::paintGL() {
+void CHistogram3D::paintGL() {
 
-    transform_histo();
+    transformHisto();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -327,34 +327,34 @@ void Histogram3dView::paintGL() {
     glFlush();
 }
 
-void Histogram3dView::color_histo() {
-    regen_histo();
+void CHistogram3D::colorHisto() {
+    regenHisto();
 }
 
-void Histogram3dView::transform_histo() {
-    if (flags_ & MOVE_UP) {
+void CHistogram3D::transformHisto() {
+    if (m_Flags & MOVE_UP) {
         alpha1 = alpha1 + -0.7 * 1;
     }
-    if (flags_ & MOVE_RIGHT) {
+    if (m_Flags & MOVE_RIGHT) {
         alpha2 = alpha2 + 0.7 * 1;
     }
-    if (flags_ & MOVE_DOWN) {
+    if (m_Flags & MOVE_DOWN) {
         alpha1 = alpha1 + 0.7 * 1;
     }
-    if (flags_ & MOVE_LEFT) {
+    if (m_Flags & MOVE_LEFT) {
         alpha2 = alpha2 + -0.7 * 1;
     }
-    if (flags_ & SCALE_UP) {
+    if (m_Flags & SCALE_UP) {
 
-        if (!(flags_ & SCALE_UP_Z)) { // Z Only.
+        if (!(m_Flags & SCALE_UP_Z)) { // Z Only.
             scaleX += 0.01;
             scaleY += 0.01;
         }
         scaleZ += 0.01;
     }
-    if (flags_ & SCALE_DOWN) {
+    if (m_Flags & SCALE_DOWN) {
 
-        if (!(flags_ & SCALE_DOWN_Z)) { // Z Only.
+        if (!(m_Flags & SCALE_DOWN_Z)) { // Z Only.
             if (scaleX >= 0.05) {
                 scaleX += -0.01;
             }
@@ -368,28 +368,28 @@ void Histogram3dView::transform_histo() {
     }
 }
 
-void Histogram3dView::regen_histo() {
-    if (hist_) {
-        delete[] hist_;
-        hist_ = nullptr;
+void CHistogram3D::regenHisto() {
+    if (m_Histogram) {
+        delete[] m_Histogram;
+        m_Histogram = nullptr;
     }
 
-    histo_dtype_t t = string_to_histo_dtype(type_->currentText().toStdString());
-    hist_ = generate_histo_3d(dat_, dat_n_, t, overlap_->isChecked());
+    HistoDtype_t t = string_to_histo_dtype(m_Type->currentText().toStdString());
+    m_Histogram = generate_histo_3d(m_Data, m_Size, t, m_Overlap->isChecked());
 
-    parameters_changed();
+    parametersChanged();
 }
 
-void Histogram3dView::parameters_changed() {
-    if (!hist_)
+void CHistogram3D::parametersChanged() {
+    if (!m_Histogram)
         return;
 
-    int thresh = thresh_->value();
-    float scale_factor = scale_->value();
+    int thresh = m_Threshold->value();
+    float scale_factor = m_Scale->value();
 
     n_vertices = 0;
     for (int i = 0; i < 256 * 256 * 256; i++) {
-        if (hist_[i] >= thresh) {
+        if (m_Histogram[i] >= thresh) {
             n_vertices++;
         }
     }
@@ -403,7 +403,7 @@ void Histogram3dView::parameters_changed() {
         vertices = new GLfloat[n_vertices * 3];
         colors = new GLfloat[n_vertices * 3];
         for (int i = 0, j = 0; i < 256 * 256 * 256; i++) {
-            if (hist_[i] >= thresh) {
+            if (m_Histogram[i] >= thresh) {
                 float x = i / (256 * 256);
                 float y = (i % (256 * 256)) / 256;
                 float z = i % 256;
@@ -421,13 +421,13 @@ void Histogram3dView::parameters_changed() {
                 vertices[j * 3 + 1] = y * 2. - 1.;
                 vertices[j * 3 + 2] = z * 2. - 1.;
 
-                float cc = hist_[i] / scale_factor;
+                float cc = m_Histogram[i] / scale_factor;
                 cc += .2;
                 if (cc > 1.) {
                     cc = 1.;
                 }
 
-                if (color_->isChecked())
+                if (m_Color->isChecked())
                 {
                     if (cc < 0.7f)
                     {
@@ -466,19 +466,19 @@ void Histogram3dView::parameters_changed() {
         }
     }
 
-    printf("VERTEX COUNT: %d\n", n_vertices);
+    printf("%s(%d)\n", "n_vertices", n_vertices);
     updateGL();
 }
 
-void Histogram3dView::setTransformFlags(int flags) {
-    flags_ |= flags;
+void CHistogram3D::setTransformFlags(int flags) {
+    m_Flags |= flags;
 }
 
-void Histogram3dView::removeTransformFlags(int flags) {
-    flags_ &= ~flags;
+void CHistogram3D::removeTransformFlags(int flags) {
+    m_Flags &= ~flags;
 }
 
-void Histogram3dView::mousePressEvent(QMouseEvent *event) {
+void CHistogram3D::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         mouse_x = event->x();
         mouse_y = event->y();
@@ -486,7 +486,7 @@ void Histogram3dView::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-void Histogram3dView::mouseMoveEvent(QMouseEvent *event) {
+void CHistogram3D::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() == Qt::RightButton) {
         return;
     }
@@ -503,7 +503,7 @@ void Histogram3dView::mouseMoveEvent(QMouseEvent *event) {
     event->accept();
 }
 
-void Histogram3dView::mouseReleaseEvent(QMouseEvent *e) {
+void CHistogram3D::mouseReleaseEvent(QMouseEvent *e) {
     e->accept();
 }
 
@@ -514,7 +514,7 @@ void set_position_scale_float(float f)
     scaleZ = f;
 }
 
-void Histogram3dView::wheelEvent(QWheelEvent* event)
+void CHistogram3D::wheelEvent(QWheelEvent* event)
 {
     float scaleFactor = 0.0005;
     float scale = scaleX;

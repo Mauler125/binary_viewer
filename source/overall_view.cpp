@@ -24,45 +24,45 @@
 
 using std::min;
 
-OverallView::OverallView(QWidget *p)
+COverallView::COverallView(QWidget *p)
         : QLabel(p),
-          m1_(0.), m2_(1.), px_(-1), py_(-1), s_(allow_selection_::NONE),
-          allow_selection_(true),
-          use_byte_classes_(true),
-          use_hilbert_curve_(true),
-          dat_(nullptr), len_(0) {
+          m_UpperBandPos(0.), m_LowerBandPos(1.), m_MousePosX(-1), m_MousePosY(-1), m_SelectionType(allow_selection_::NONE),
+          m_AllowSelection(true),
+          m_UseByteClasses(true),
+          m_UseHilbertCurve(true),
+          m_Data(nullptr), m_Size(0) {
 }
 
-void OverallView::enableSelection(bool v) {
-    allow_selection_ = v;
+void COverallView::enableSelection(bool v) {
+    m_AllowSelection = v;
     update();
 }
 
-void OverallView::enableByteClasses(bool v) {
-    use_byte_classes_ = v;
+void COverallView::enableByteClasses(bool v) {
+    m_UseByteClasses = v;
     update();
 }
 
-void OverallView::enableHilbertCurve(bool v) {
-    use_hilbert_curve_ = v;
+void COverallView::enableHilbertCurve(bool v) {
+    m_UseHilbertCurve = v;
     update();
 }
 
-void OverallView::setImage(QImage &img) {
-    img_ = img;
+void COverallView::setImage(QImage &img) {
+    m_Image = img;
 
     update_pix();
 
     update();
 }
 
-void OverallView::set_data(const unsigned char *dat, long len, bool reset_selection) {
-    dat_ = dat;
-    len_ = len;
+void COverallView::set_data(const unsigned char *dat, long len, bool reset_selection) {
+    m_Data = dat;
+    m_Size = len;
 
     if (reset_selection) {
-        m1_ = 0.;
-        m2_ = 1.;
+        m_UpperBandPos = 0.;
+        m_LowerBandPos = 1.;
     }
 
     int w = width();
@@ -77,14 +77,14 @@ void OverallView::set_data(const unsigned char *dat, long len, bool reset_select
 
     curve_t hilbert;
     int h_ind = 0;
-    if (use_hilbert_curve_) gilbert2d(img_w, img_h, hilbert);
+    if (m_UseHilbertCurve) gilbert2d(img_w, img_h, hilbert);
 
     auto p = (unsigned int *) img.bits();
 
     for (int i = 0; i < len;) {
         int r = 0, g = 0, b = 0;
 
-        if (!use_byte_classes_) {
+        if (!m_UseByteClasses) {
             int cn = 0;
             int j;
             for (j = 0; i < len && j < sf; i++, j++) {
@@ -131,7 +131,7 @@ void OverallView::set_data(const unsigned char *dat, long len, bool reset_select
 
         unsigned int v = (0xff << 24) | (r << 16) | (g << 8) | (b << 0);
 
-        if (!use_hilbert_curve_) {
+        if (!m_UseHilbertCurve) {
             *p++ = v;
         } else {
             if (h_ind >= hilbert.size()) abort();
@@ -151,13 +151,13 @@ void OverallView::set_data(const unsigned char *dat, long len, bool reset_select
     setImage(img);
 }
 
-void OverallView::paintEvent(QPaintEvent *e) {
+void COverallView::paintEvent(QPaintEvent *e) {
     QLabel::paintEvent(e);
 
     QPainter p(this);
-    if (allow_selection_) {
-        int ry1 = m1_ * height();
-        int ry2 = m2_ * height();
+    if (m_AllowSelection) {
+        int ry1 = m_UpperBandPos * height();
+        int ry2 = m_LowerBandPos * height();
 
         QBrush brush(QColor(128, 64, 64, 128 + 32));
         QPen pen(brush, 5.5, Qt::SolidLine, Qt::FlatCap);
@@ -171,20 +171,20 @@ void OverallView::paintEvent(QPaintEvent *e) {
     p.drawRect(0, 0, width() - 1, height() - 1);
 }
 
-void OverallView::resizeEvent(QResizeEvent *e) {
+void COverallView::resizeEvent(QResizeEvent *e) {
     QLabel::resizeEvent(e);
 
     update_pix();
 }
 
-void OverallView::update_pix() {
-    if (img_.isNull()) return;
+void COverallView::update_pix() {
+    if (m_Image.isNull()) return;
 
     int vw = width();
     int vh = height();
-    pix_ = QPixmap::fromImage(img_).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
-    setPixmap(pix_);
-    printf("%d %d   %d %d   %d %d\n", vw, vh, img_.width(), img_.height(), width(), height());
+    m_Pixmap = QPixmap::fromImage(m_Image).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
+    setPixmap(m_Pixmap);
+    printf("%d %d   %d %d   %d %d\n", vw, vh, m_Image.width(), m_Image.height(), width(), height());
 }
 
 // Gray code related functions are from https://en.wikipedia.org/wiki/Gray_code
@@ -201,20 +201,20 @@ static unsigned int GrayToBinary(unsigned int num) {
     return num;
 }
 
-void OverallView::mousePressEvent(QMouseEvent *e) {
+void COverallView::mousePressEvent(QMouseEvent *e) {
     e->accept();
 
     if (e->button() == Qt::RightButton) {
-        unsigned char v = (use_byte_classes_ ? 0x02 : 0x00) | (use_hilbert_curve_ ? 0x01 : 0x00);
+        unsigned char v = (m_UseByteClasses ? 0x02 : 0x00) | (m_UseHilbertCurve ? 0x01 : 0x00);
         v = BinaryToGray((GrayToBinary(v) + 1) & 0x03);
-        use_byte_classes_ = v & 0x02;
-        use_hilbert_curve_ = v & 0x01;
-        set_data(dat_, len_, false);
+        m_UseByteClasses = v & 0x02;
+        m_UseHilbertCurve = v & 0x01;
+        set_data(m_Data, m_Size, false);
         return;
     }
 
     if (e->button() == Qt::LeftButton) {
-        if (!allow_selection_) return;
+        if (!m_AllowSelection) return;
 
         int x = e->pos().x();
         int y = e->pos().y();
@@ -226,25 +226,25 @@ void OverallView::mousePressEvent(QMouseEvent *e) {
 
         float yp = y / float(height());
 
-        if (yp > m1_ && (yp - m1_) < .01) {
-            s_ = allow_selection_::M1_MOVING;
-        } else if (yp < m2_ && (m2_ - yp) < .01) {
-            s_ = allow_selection_::M2_MOVING;
-        } else if (m1_ < yp && yp < m2_) {
-            s_ = allow_selection_::M12_MOVING;
+        if (yp > m_UpperBandPos && (yp - m_UpperBandPos) < .01) {
+            m_SelectionType = allow_selection_::M1_MOVING;
+        } else if (yp < m_LowerBandPos && (m_LowerBandPos - yp) < .01) {
+            m_SelectionType = allow_selection_::M2_MOVING;
+        } else if (m_UpperBandPos < yp && yp < m_LowerBandPos) {
+            m_SelectionType = allow_selection_::M12_MOVING;
         } else {
-            s_ = allow_selection_::NONE;
+            m_SelectionType = allow_selection_::NONE;
         }
 
-        px_ = x;
-        py_ = y;
+        m_MousePosX = x;
+        m_MousePosY = y;
     }
 }
 
-void OverallView::mouseMoveEvent(QMouseEvent *e) {
+void COverallView::mouseMoveEvent(QMouseEvent *e) {
     e->accept();
 
-    if (s_ == allow_selection_::NONE) return;
+    if (m_SelectionType == allow_selection_::NONE) return;
 
     int x = e->pos().x();
     int y = e->pos().y();
@@ -254,38 +254,38 @@ void OverallView::mouseMoveEvent(QMouseEvent *e) {
     if (y < 0) y = 0;
     if (y > height() - 1) y = height() - 1;
 
-    if (y == py_) return;
+    if (y == m_MousePosY) return;
 
     int h = height();
 
-    float m1 = m1_;
-    float m2 = m2_;
-    if (s_ == allow_selection_::M1_MOVING) {
+    float m1 = m_UpperBandPos;
+    float m2 = m_LowerBandPos;
+    if (m_SelectionType == allow_selection_::M1_MOVING) {
         m1 = y / float(h);
-    } else if (s_ == allow_selection_::M2_MOVING) {
+    } else if (m_SelectionType == allow_selection_::M2_MOVING) {
         m2 = y / float(h);
-    } else if (s_ == allow_selection_::M12_MOVING) {
-        float dy = (y - py_) / float(h);
+    } else if (m_SelectionType == allow_selection_::M12_MOVING) {
+        float dy = (y - m_MousePosY) / float(h);
         m1 += dy;
         m2 += dy;
     }
-    if (m1 >= m2_ - .01) m1 = m2_ - .01;
+    if (m1 >= m_LowerBandPos - .01) m1 = m_LowerBandPos - .01;
     if (m1 < 0.) m1 = 0.;
-    if (m2 <= m1_ + .01) m2 = m1_ + .01;
+    if (m2 <= m_UpperBandPos + .01) m2 = m_UpperBandPos + .01;
     if (m2 > 1.) m2 = 1.;
 
-    m1_ = m1;
-    m2_ = m2;
+    m_UpperBandPos = m1;
+    m_LowerBandPos = m2;
 
-    px_ = x;
-    py_ = y;
+    m_MousePosX = x;
+    m_MousePosY = y;
 
     update();
 
-    emit(rangeSelected(m1_, m2_));
+    emit(rangeSelected(m_UpperBandPos, m_LowerBandPos));
 }
 
-void OverallView::mouseReleaseEvent(QMouseEvent *e) {
+void COverallView::mouseReleaseEvent(QMouseEvent *e) {
     e->accept();
 
     if (e->button() != Qt::LeftButton) return;
@@ -298,7 +298,7 @@ void OverallView::mouseReleaseEvent(QMouseEvent *e) {
 //    if (y < 0) y = 0;
 //    if (y > height() - 1) y = height() - 1;
 
-    px_ = -1;
-    py_ = -1;
-    s_ = allow_selection_::NONE;
+    m_MousePosX = -1;
+    m_MousePosY = -1;
+    m_SelectionType = allow_selection_::NONE;
 }

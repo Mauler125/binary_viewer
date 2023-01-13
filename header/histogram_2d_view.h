@@ -25,46 +25,37 @@
 #include <QPixmap>
 
 class QSpinBox;
-
 class QComboBox;
 
-class Histogram2dView : public QLabel {
+class CHistogram2D : public QLabel {
 Q_OBJECT
 public:
-    explicit Histogram2dView(QWidget *p = nullptr);
-
-    ~Histogram2dView() override;
+    explicit CHistogram2D(QWidget *p = nullptr);
+    ~CHistogram2D() override;
 
 public slots:
-
     void setData(const unsigned char *dat, long n);
-
-    void parameters_changed();
+    void parametersChanged();
 
 protected slots:
-
     void setImage(QImage &img);
-
-    void regen_histo();
+    void regenHisto();
 
 protected:
-    QImage img_;
-    QPixmap pix_;
-
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *e) override;
+    void updatePixmap();
 
-    void update_pix();
+    QSpinBox *m_Threshold, *m_Scale;
+    QComboBox *m_Type;
+    int *m_Histogram;
+    const unsigned char *m_Data;
+    long m_Size;
 
-    QSpinBox *thresh_, *scale_;
-    QComboBox *type_;
-    int *hist_;
-    const unsigned char *dat_;
-    long dat_n_;
+    QImage m_Image;
+    QPixmap m_Pixmap;
 
 signals:
-
     void rangeSelected(float, float);
 };
 

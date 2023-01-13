@@ -24,54 +24,43 @@
 #include <QImage>
 #include <QPixmap>
 
-class PlotView : public QLabel {
+class CPlotView : public QLabel {
 Q_OBJECT
 public:
-    explicit PlotView(QWidget *p = nullptr);
-
-    ~PlotView() override = default;
+    explicit CPlotView(QWidget *p = nullptr);
+    ~CPlotView() override = default;
 
 public slots:
-
     void setImage(int ind, QImage &img);
-
-    void set_data(const float *bin, long len, bool normalize = true);
-
-    void set_data(int ind, const float *bin, long len, bool normalize = true);
-
+    void setData(const float *bin, long len, bool normalize = true);
+    void setData(int ind, const float *bin, long len, bool normalize = true);
     void enableSelection(bool);
 
 protected slots:
 
 protected:
-    QImage img_[2];
-    QPixmap pix_;
-
     void paintEvent(QPaintEvent *) override;
-
     void resizeEvent(QResizeEvent *e) override;
-
     void mousePressEvent(QMouseEvent *event) override;
-
     void mouseMoveEvent(QMouseEvent *event) override;
-
     void mouseReleaseEvent(QMouseEvent *event) override;
-
     void update_pix();
 
-    float m1_, m2_;
-    int px_, py_;
-    int ind_;
+    float m_UpperBandPos, m_LowerBandPos;
+    int m_MousePosX, m_MousePosY;
+    int m_ImageIndex;
     enum class allow_selection_ {
         NONE,
         M1_MOVING,
         M2_MOVING,
         M12_MOVING
-    } s_;
-    bool allow_selection_;
+    } m_SelectionType;
+
+    QImage m_Images[2];
+    QPixmap m_Pixmap;
+    bool m_AllowSelection;
 
 signals:
-
     void rangeSelected(float, float);
 };
 
