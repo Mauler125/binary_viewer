@@ -427,24 +427,33 @@ void Histogram3dView::parameters_changed() {
                     cc = 1.;
                 }
 
-                // TEMP color display
-                // TODO: replace with proper vertex coloring
                 if (color_->isChecked())
                 {
-                    if(colors[j * 3 + 0] == NULL)
-                        colors[j * 3 + 0] = cc;
+                    if (cc < 0.7f)
+                    {
+                        if (cc > 0.375f)
+                        {
+                            float g = (cc - 0.35f) / (0.7f - 0.35f) * (1.0f - 0.35f) + 0.35f;
+                            colors[j * 3 + 0] = cc/2;
+                            colors[j * 3 + 1] = g;
+                            colors[j * 3 + 2] = cc/2;
+                        }
+                        else
+                        {
+                            colors[j * 3 + 0] = cc;
+                            colors[j * 3 + 1] = cc;
+                            colors[j * 3 + 2] = cc+0.0f;
+                        }
+                    }
                     else
-                        colors[j * 3 + 0] = cc;
-
-                    if(colors[j * 3 + 4] == NULL)
-                        colors[j * 3 + 4] = cc;
-                    else
-                        colors[j * 3 + 1] = cc;
-
-                    if(colors[j * 3 + 8] == NULL)
-                        colors[j * 3 + 8] = cc;
-                    else
-                        colors[j * 3 + 2] = cc;
+                    {
+                        float r = (cc > 0.7f) ? 1.0f : cc * 2;
+                        float g = (cc < 0.7f) ? 1.0f : 1.0f - (cc - 0.7f) * 2;
+                        float b = 0.0f;
+                        colors[j * 3 + 0] = r;
+                        colors[j * 3 + 1] = g;
+                        colors[j * 3 + 2] = b;
+                    }
                 }
                 else
                 {
