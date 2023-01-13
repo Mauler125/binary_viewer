@@ -434,9 +434,9 @@ void Histogram3dView::parameters_changed() {
                         if (cc > 0.375f)
                         {
                             float g = (cc - 0.35f) / (0.7f - 0.35f) * (1.0f - 0.35f) + 0.35f;
-                            colors[j * 3 + 0] = cc/2;
+                            colors[j * 3 + 0] = sqrt(cc/3);
                             colors[j * 3 + 1] = g;
-                            colors[j * 3 + 2] = cc/2;
+                            colors[j * 3 + 2] = sqrt(cc/3);
                         }
                         else
                         {
