@@ -57,12 +57,12 @@ DotPlot::DotPlot(QWidget *p)
         int r = 0;
 
         {
-            auto l = new QLabel("Offset1 (B)");
+            auto l = new QLabel("Offset1 (B)", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, r, 0);
         }
         {
-            auto sb = new QSpinBox;
+            auto sb = new QSpinBox(this);
             sb->setFixedSize(sb->sizeHint());
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(0, 100000);
@@ -73,12 +73,12 @@ DotPlot::DotPlot(QWidget *p)
         r++;
 
         {
-            auto l = new QLabel("Offset2 (B)");
+            auto l = new QLabel("Offset2 (B)", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, r, 0);
         }
         {
-            auto sb = new QSpinBox;
+            auto sb = new QSpinBox(this);
             sb->setFixedSize(sb->sizeHint());
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(0, 100000);
@@ -89,12 +89,12 @@ DotPlot::DotPlot(QWidget *p)
         r++;
 
         {
-            auto l = new QLabel("Width");
+            auto l = new QLabel("Width", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, r, 0);
         }
         {
-            auto sb = new QSpinBox;
+            auto sb = new QSpinBox(this);
             sb->setFixedSize(sb->sizeHint());
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 100000);
@@ -105,12 +105,12 @@ DotPlot::DotPlot(QWidget *p)
         r++;
 
         {
-            auto l = new QLabel("Max Samples");
+            auto l = new QLabel("Max Samples", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, r, 0);
         }
         {
-            auto sb = new QSpinBox;
+            auto sb = new QSpinBox(this);
             sb->setFixedSize(sb->sizeHint());
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 100000);
@@ -121,7 +121,7 @@ DotPlot::DotPlot(QWidget *p)
         r++;
 
         {
-            auto pb = new QPushButton("Resample");
+            auto pb = new QPushButton("Resample", this);
             pb->setFixedSize(pb->sizeHint());
             layout->addWidget(pb, r, 1);
             QObject::connect(pb, SIGNAL(clicked()), this, SLOT(parameters_changed()));

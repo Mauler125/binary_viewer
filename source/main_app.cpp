@@ -78,34 +78,34 @@ MainApp::MainApp(QWidget *p)
 
     this->setSizeGripEnabled(true);
     this->setAcceptDrops(true);
-    auto top_layout = new QGridLayout;
+    auto top_layout = new QGridLayout(this);
 
     new QShortcut(QKeySequence(Qt::Key_F11), this, SLOT(toggleFullScreen()));
 	new QShortcut(QKeySequence(Qt::Key_F10), this, SLOT(toggleDarkMode()));
 	new QShortcut(QKeySequence(Qt::Key_F9), this, SLOT(toggleLightMode()));	
 
     {
-        auto layout = new QHBoxLayout;
+        auto layout = new QHBoxLayout(p);
         {
-            auto pb = new QPushButton("Load File");
+            auto pb = new QPushButton("Load File", this);
             pb->setFixedSize(pb->sizeHint());
             connect(pb, SIGNAL(clicked()), SLOT(loadFile()));
             layout->addWidget(pb);
         }
         {
-            auto pb = new QPushButton("Prev File");
+            auto pb = new QPushButton("Prev File", this);
             pb->setFixedSize(pb->sizeHint());
             connect(pb, SIGNAL(clicked()), SLOT(prevFile()));
             layout->addWidget(pb);
         }
         {
-            auto pb = new QPushButton("Next File");
+            auto pb = new QPushButton("Next File", this);
             pb->setFixedSize(pb->sizeHint());
             connect(pb, SIGNAL(clicked()), SLOT(nextFile()));
             layout->addWidget(pb);
         }
 		{
-			auto pb = new QPushButton("Full Screen");
+			auto pb = new QPushButton("Full Screen", this);
 			pb->setFixedSize(pb->sizeHint());
 			connect(pb, SIGNAL(clicked()), SLOT(toggleFullScreen()));
 			layout->addWidget(pb);
@@ -114,9 +114,9 @@ MainApp::MainApp(QWidget *p)
     }
 
     {
-        overall_primary_ = new OverallView;
-        overall_zoomed_ = new OverallView;
-        plot_view_ = new PlotView;
+        overall_primary_ = new OverallView(this);
+        overall_zoomed_ = new OverallView(this);
+        plot_view_ = new PlotView(this);
 
         connect(overall_primary_, SIGNAL(rangeSelected(float, float)), SLOT(rangeSelected(float, float)));
 
@@ -129,7 +129,7 @@ MainApp::MainApp(QWidget *p)
 
         plot_view_->enableSelection(false);
 
-        auto layout = new QHBoxLayout;
+        auto layout = new QHBoxLayout(p);
         layout->addWidget(overall_primary_);
         layout->addWidget(overall_zoomed_);
         layout->addWidget(plot_view_);
@@ -137,10 +137,10 @@ MainApp::MainApp(QWidget *p)
     }
 
     {
-        auto layout = new QHBoxLayout;
+        auto layout = new QHBoxLayout(p);
 
         {
-            cur_view_ = new QComboBox();
+            cur_view_ = new QComboBox(this);
             cur_view_->addItem("3D histogram");
             cur_view_->addItem("2D histogram");
             cur_view_->addItem("Binary view");
@@ -151,7 +151,7 @@ MainApp::MainApp(QWidget *p)
             layout->addWidget(cur_view_);
         }
         {
-            filename_ = new QLabel();
+            filename_ = new QLabel(this);
             layout->addWidget(filename_);
         }
 
@@ -159,11 +159,11 @@ MainApp::MainApp(QWidget *p)
     }
 
     {
-        histogram_3d_ = new Histogram3dView;
-        histogram_2d_ = new Histogram2dView;
-        binary_viewer_ = new BinaryViewer;
-        image_view_ = new ImageView;
-        dot_plot_ = new DotPlot;
+        histogram_3d_ = new Histogram3dView(this);
+        histogram_2d_ = new Histogram2dView(this);
+        binary_viewer_ = new BinaryViewer(this);
+        image_view_ = new ImageView(this);
+        dot_plot_ = new DotPlot(this);
 
         views_.push_back(histogram_3d_);
         views_.push_back(histogram_2d_);
@@ -171,7 +171,7 @@ MainApp::MainApp(QWidget *p)
         views_.push_back(image_view_);
         views_.push_back(dot_plot_);
 
-        auto layout = new QHBoxLayout;
+        auto layout = new QHBoxLayout(p);
         for (const auto &j : views_) {
             layout->addWidget(j);
         }

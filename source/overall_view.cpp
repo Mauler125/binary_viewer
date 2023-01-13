@@ -129,7 +129,7 @@ void OverallView::set_data(const unsigned char *dat, long len, bool reset_select
         g = min(255, g) & 0xff;
         b = min(255, b) & 0xff;
 
-        unsigned int v = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
+        unsigned int v = (0xff << 24) | (r << 16) | (g << 8) | (b << 0);
 
         if (!use_hilbert_curve_) {
             *p++ = v;

@@ -32,12 +32,12 @@ ImageView::ImageView(QWidget *p)
     {
         auto layout = new QGridLayout(this);
         {
-            auto l = new QLabel("Offset (B)");
+            auto l = new QLabel("Offset (B)", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, 0, 0);
         }
         {
-            auto sb = new QSpinBox;
+            auto sb = new QSpinBox(this);
             sb->setFixedSize(sb->sizeHint());
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(0, 100000);
@@ -46,12 +46,12 @@ ImageView::ImageView(QWidget *p)
             layout->addWidget(sb, 0, 1);
         }
         {
-            auto l = new QLabel("Width");
+            auto l = new QLabel("Width", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, 1, 0);
         }
         {
-            auto sb = new QSpinBox;
+            auto sb = new QSpinBox(this);
             sb->setFixedSize(sb->sizeHint());
             sb->setFixedWidth(sb->width() * 1.5);
             sb->setRange(1, 10000);
@@ -60,12 +60,12 @@ ImageView::ImageView(QWidget *p)
             layout->addWidget(sb, 1, 1);
         }
         {
-            auto l = new QLabel("Type");
+            auto l = new QLabel("Type", this);
             l->setFixedSize(l->sizeHint());
             layout->addWidget(l, 2, 0);
         }
         {
-            auto cb = new QComboBox;
+            auto cb = new QComboBox(this);
             cb->setFixedSize(cb->sizeHint());
             cb->addItem("RGB 8");
             cb->addItem("RGB 12");

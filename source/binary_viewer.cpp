@@ -128,7 +128,7 @@ void BinaryView::paintEvent(QPaintEvent *e) {
                 g = 0xff;
                 b = 0xff;
             }
-            unsigned int v = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
+            unsigned int v = (0xff << 24) | (r << 16) | (g << 8) | (b << 0);
             p.setPen(QPen(QRgb(v)));
 
             QString s2;
@@ -200,8 +200,8 @@ BinaryViewer::BinaryViewer(QWidget *p)
 {
     auto layout = new QHBoxLayout(this);
 
-    bv_ = new BinaryView();
-    sb_ = new QScrollBar();
+    bv_ = new BinaryView(this);
+    sb_ = new QScrollBar(this);
 
     layout->addWidget(bv_);
     layout->addWidget(sb_);
