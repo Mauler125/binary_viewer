@@ -170,7 +170,7 @@ void CHistogram2D::parametersChanged() {
             unsigned char r = 20;
             unsigned char g = c;
             unsigned char b = 20;
-            unsigned int v = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
+            unsigned int v = (0xff << 24) | (r << 16) | (g << 8) | (b << 0);
 
             *p = v;
         }
