@@ -62,15 +62,15 @@ protected slots:
 
 protected:
     //    void updatePositions(bool resized = false);
-
-    void resizeEvent(QResizeEvent* e) override;
-    void dropEvent(QDropEvent* ev) override;
-    void dragEnterEvent(QDragEnterEvent* ev) override;
+    bool eventFilter(QObject* object, QEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* event) override;
 
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
 
-    void updateViews(bool update_iv1 = true);
+    void updateViews(bool update_iv1 = true, bool optimize = false);
 
     QComboBox *m_CurrentView;
 
@@ -84,16 +84,17 @@ protected:
     CHistogram3D *m_Histogram3D;
     QLabel *m_Filename;
 
-    unsigned char* m_Data;
-    size_t m_Size;
+    quint8* m_Data;
+    qsizetype m_Size;
 
-    size_t m_Start;
-    size_t m_End;
+    qsizetype m_Start;
+    qsizetype m_End;
 
     int m_CurrentFile;
 
     bool m_DoneFlag;
     bool m_ReturnToMaximized;
+    bool m_IsResizing;
 
     QStringList m_FileList;
     std::vector<QWidget*> m_Views;

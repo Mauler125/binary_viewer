@@ -41,7 +41,7 @@
 #include "plot_view.h"
 #include "histogram_calc.h"
 
-static int scroller_w = 16 * 8;
+static const int s_ScrollWidth = 16 * 8;
 
 void CMain::toggleFullScreen() {
 	if (!isFullScreen()) {
@@ -75,6 +75,8 @@ void CMain::toggleDarkMode()
 CMain::CMain(QWidget *p)
         : QDialog(p), m_CurrentFile(-1), m_Data(nullptr), m_Size(0), m_Start(0), m_End(0) {
     m_DoneFlag = false;
+
+    qApp->installEventFilter(this);
 
     this->setSizeGripEnabled(true);
     this->setAcceptDrops(true);
@@ -126,9 +128,9 @@ CMain::CMain(QWidget *p)
 
         connect(m_OverallPrimary, SIGNAL(rangeSelected(float, float)), SLOT(rangeSelected(float, float)));
 
-        m_OverallPrimary->setFixedWidth(scroller_w);
-        m_OverallZoomed->setFixedWidth(scroller_w);
-        m_PlotView->setFixedWidth(scroller_w);
+        m_OverallPrimary->setFixedWidth(s_ScrollWidth);
+        m_OverallZoomed->setFixedWidth(s_ScrollWidth);
+        m_PlotView->setFixedWidth(s_ScrollWidth);
 
         m_OverallZoomed->enableSelection(false);
         m_OverallZoomed->enableHilbertCurve(false);
@@ -199,9 +201,23 @@ CMain::~CMain() {
     quit();
 }
 
+bool CMain::eventFilter(QObject* object, QEvent* event)
+{
+    if ((event->type() == QEvent::MouseButtonRelease) || (event->type() == QEvent::NonClientAreaMouseButtonRelease)) {
+        QMouseEvent* pMouseEvent = dynamic_cast<QMouseEvent*>(event);
+        if ((pMouseEvent->button() == Qt::MouseButton::LeftButton) && m_IsResizing) {
+
+            m_IsResizing = false;
+            updateViews(true, false);
+        }
+    }
+    return QObject::eventFilter(object, event);
+}
+
 void CMain::resizeEvent(QResizeEvent *e) {
     QDialog::resizeEvent(e);
-    updateViews();
+    m_IsResizing = true;
+    updateViews(true, true);
 }
 
 void CMain::dropEvent(QDropEvent* ev)
@@ -243,7 +259,7 @@ bool CMain::loadFile(const QString &filename) {
 
     QFile file(filename.toStdString().c_str());
     if (!file.open(QIODevice::OpenModeFlag::ReadOnly)) {
-        fprintf(stderr, "Unable to open %s\n", filename.toStdString().c_str());
+        fprintf(stderr, "Unable to open: '%s'\n", filename.toStdString().c_str());
         return false;
     }
 
@@ -260,7 +276,7 @@ bool CMain::loadFile(const QString &filename) {
     m_Size = file.read(reinterpret_cast<char*>(m_Data), len);
 
     if (m_Size != len) {
-        printf("premature read %zu of %zu\n", m_Size, len);
+        printf("premature read '%zu' of '%zu'\n", m_Size, len);
     }
 
     m_Start = 0;
@@ -322,41 +338,47 @@ bool CMain::loadStyle(QString s)
     return rv;
 }
 
-void CMain::updateViews(bool update_iv1) {
+void CMain::updateViews(bool update_iv1, bool optimize) {
     if (update_iv1) m_OverallPrimary->clear();
 
-    if (m_Data == nullptr) return;
+    if (m_Data == nullptr) {
+        return;
+    }
 
     // iv1 shows the entire file, iv2 shows the current segment
-    if (update_iv1) m_OverallPrimary->setData(m_Data + 0, m_Size);
-    m_OverallZoomed->setData(m_Data + m_Start, m_End - m_Start);
+    if (update_iv1) m_OverallPrimary->setData(m_Data, m_Size, true, optimize);
+    m_OverallZoomed->setData(m_Data + m_Start, m_End - m_Start, true, optimize);
 
-    {
-        int64_t n;
-        auto dd = generate_entropy(m_Data + m_Start, m_End - m_Start, n);
-        if (dd) {
-            m_PlotView->setData(0, dd, n);
-            delete[] dd;
+    if (!optimize) {
+        {
+            int64_t n;
+            auto dd = generate_entropy(m_Data + m_Start, m_End - m_Start, n);
+            if (dd) {
+                m_PlotView->setData(0, dd, n);
+                delete[] dd;
+            }
+        }
+
+        {
+            auto dd = generate_histo(m_Data + m_Start, m_End - m_Start);
+            if (dd) {
+                m_PlotView->setData(1, dd, 256, false);
+                delete[] dd;
+            }
         }
     }
 
-    {
-        auto dd = generate_histo(m_Data + m_Start, m_End - m_Start);
-        if (dd) {
-            m_PlotView->setData(1, dd, 256, false);
-            delete[] dd;
+    if (!optimize) {
+        if (m_Histogram3D->isVisible()) m_Histogram3D->setData(m_Data + m_Start, m_End - m_Start);
+        if (m_Histogram2D->isVisible()) m_Histogram2D->setData(m_Data + m_Start, m_End - m_Start);
+        if (m_HexView->isVisible()) {
+            //        binary_viewer_->setData(bin_ + start_, end_ - start_);
+            m_HexView->setData(m_Data, m_End);
+            m_HexView->setStart(m_Start / 16);
         }
+        if (m_ImageView->isVisible()) m_ImageView->setData(m_Data + m_Start, m_End - m_Start);
+        if (m_DotPlot->isVisible()) m_DotPlot->setData(m_Data + m_Start, m_End - m_Start);
     }
-
-    if (m_Histogram3D->isVisible()) m_Histogram3D->setData(m_Data + m_Start, m_End - m_Start);
-    if (m_Histogram2D->isVisible()) m_Histogram2D->setData(m_Data + m_Start, m_End - m_Start);
-    if (m_HexView->isVisible()) {
-//        binary_viewer_->setData(bin_ + start_, end_ - start_);
-        m_HexView->setData(m_Data, m_End);
-        m_HexView->setStart(m_Start / 16);
-    }
-    if (m_ImageView->isVisible()) m_ImageView->setData(m_Data + m_Start, m_End - m_Start);
-    if (m_DotPlot->isVisible()) m_DotPlot->setData(m_Data + m_Start, m_End - m_Start);
 }
 
 void CMain::rangeSelected(float s, float e) {

@@ -34,7 +34,7 @@ public:
 public slots:
 
     void setImage(QImage &img);
-    void setData(const quint8 *bin, qsizetype len, bool reset_selection = true);
+    void setData(const quint8 *bin, qsizetype len, bool reset_selection = true, bool disableByteClasses = false);
 
     void enableSelection(bool);
     void enableByteClasses(bool);
@@ -43,12 +43,12 @@ public slots:
 protected slots:
 
 protected:
-    void paintEvent(QPaintEvent *) override;
-    void resizeEvent(QResizeEvent *e) override;
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
-    void update_pix();
+    void updatePixmap();
 
     float m_UpperBandPos, m_LowerBandPos;
     int m_MousePosX, m_MousePosY;

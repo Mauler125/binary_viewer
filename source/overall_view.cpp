@@ -51,16 +51,16 @@ void COverallView::enableHilbertCurve(bool v) {
 void COverallView::setImage(QImage &img) {
     m_Image = img;
 
-    update_pix();
+    updatePixmap();
 
     update();
 }
 
-void COverallView::setData(const quint8 *dat, qsizetype len, bool reset_selection) {
+void COverallView::setData(const quint8 *dat, qsizetype len, bool resetSelection, bool disableByteClasses) {
     m_Data = dat;
     m_Size = len;
 
-    if (reset_selection) {
+    if (resetSelection) {
         m_UpperBandPos = 0.;
         m_LowerBandPos = 1.;
     }
@@ -84,7 +84,7 @@ void COverallView::setData(const quint8 *dat, qsizetype len, bool reset_selectio
     for (qsizetype i = 0; i < len;) {
         int r = 0, g = 0, b = 0;
 
-        if (!m_UseByteClasses) {
+        if (!m_UseByteClasses || disableByteClasses) {
             int cn = 0;
             int j;
             for (j = 0; i < len && j < sf; i++, j++) {
@@ -166,11 +166,10 @@ void COverallView::paintEvent(QPaintEvent *e) {
 
 void COverallView::resizeEvent(QResizeEvent *e) {
     QLabel::resizeEvent(e);
-
-    update_pix();
+    updatePixmap();
 }
 
-void COverallView::update_pix() {
+void COverallView::updatePixmap() {
     if (m_Image.isNull()) return;
 
     int vw = width();
