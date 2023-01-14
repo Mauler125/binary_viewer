@@ -115,6 +115,20 @@ CHistogram3D::CHistogram3D(QWidget *p)
     r++;
 
     {
+        auto l = new QLabel("Histogram-Color", this);
+        l->setFixedSize(l->sizeHint());
+        layout->addWidget(l, r, 0);
+    }
+    {
+        auto cb = new QCheckBox(this);
+        cb->setFixedSize(cb->sizeHint());
+        cb->setChecked(true);
+        m_Color = cb;
+        layout->addWidget(cb, r, 1);
+    }
+    r++;
+
+    {
         auto l = new QLabel("Overlap", this);
         l->setFixedSize(l->sizeHint());
         layout->addWidget(l, r, 0);
@@ -124,20 +138,6 @@ CHistogram3D::CHistogram3D(QWidget *p)
         cb->setFixedSize(cb->sizeHint());
         cb->setChecked(true);
         m_Overlap = cb;
-        layout->addWidget(cb, r, 1);
-    }
-    r++;
-
-    {
-        auto l = new QLabel("Histogram-Color", this);
-        l->setFixedSize(l->sizeHint());
-        layout->addWidget(l, r, 0);
-    }
-    {
-        auto cb = new QCheckBox(this);
-        cb->setFixedSize(cb->sizeHint());
-        cb->setChecked(false);
-        m_Color = cb;
         layout->addWidget(cb, r, 1);
     }
     r++;
