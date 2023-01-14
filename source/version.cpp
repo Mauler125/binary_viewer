@@ -19,7 +19,7 @@
 
 #include "version.h"
 
-const QString appname = "Bin_Viewer";
-const QString appversion = "1.4.8_Dev";
-const QString base_caption = appname + " " + appversion + " " __DATE__ + " " + __TIME__;
+const QString appname = "Binary Visualizer";
+const QString appversion = "1.5.2_Dev";
+const QString base_caption = appname + " [" + appversion + "] [" __DATE__ + "] [" + __TIME__ + "]";
 
