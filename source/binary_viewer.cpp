@@ -90,9 +90,8 @@ void CHexLogic::paintEvent(QPaintEvent *e) {
 
         qsizetype pos = (m_Offset + i) * 16;
 
-        QString s1;
-        s1 = QString("0x %1 %2").arg((pos >> 16) & 0xffff, 4, 16, QChar('0')).arg(pos & 0xffff, 4, 16, QChar('0'));
-
+        QString s1("0x");
+        s1.append(QString("%1").arg(pos, 8, 16, QChar('0')).toUpper());
         p.setPen(default_pen);
         p.drawText(x, y, s1);
 
