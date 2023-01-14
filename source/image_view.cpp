@@ -554,15 +554,15 @@ void CImageView::parametersChanged() {
             }
             bayerBG(bayer, h, w, perm, rgb);
 
-            int n = (m_Size - offset) / 1;
+            qsizetype n = (m_Size - offset) / 1;
             img = QImage(w, h, QImage::Format_RGB32);
             img.fill(0);
             auto p = (unsigned int *) img.bits();
-            for (int i = 0; i < n; i++) {
+            for (qsizetype i = 0; i < n; i++) {
                 unsigned char r = rgb[i * 3 + 0];
                 unsigned char g = rgb[i * 3 + 1];
                 unsigned char b = rgb[i * 3 + 2];
-                unsigned int v = 0xff000000 | (r << 16) | (g << 8) | (b << 0);
+                unsigned int v = (0xff << 24) | (r << 16) | (g << 8) | (b << 0);
                 *p++ = v;
             }
         }
