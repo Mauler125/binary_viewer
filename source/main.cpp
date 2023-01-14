@@ -26,14 +26,21 @@
 #include <glut.h>
 #include <QtGui>
 
+#ifdef WIN32 // TODO: cross platform support.
+#include <windows.h>
+#endif // WIN32
 
 //----------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
+#ifdef WIN32 // TODO: cross platform support.
+    ::ShowWindow(::GetConsoleWindow(), SW_MINIMIZE);
+#endif // WIN32
+
     QApplication app(argc, argv);
     QCoreApplication::setOrganizationName("Confluence");
     QCoreApplication::setOrganizationDomain("confluencerd.com");
-    QCoreApplication::setApplicationName("binary_viewer");
+    QCoreApplication::setApplicationName("binary_visualizer");
 
     QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
     QVariant darkMode = s.value("theme/darkMode", "0");
