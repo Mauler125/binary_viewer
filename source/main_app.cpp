@@ -78,6 +78,8 @@ CMain::CMain(QWidget *p)
 
     this->setSizeGripEnabled(true);
     this->setAcceptDrops(true);
+    this->setMinimumHeight(300);
+
     auto top_layout = new QGridLayout(this);
 
     new QShortcut(QKeySequence(Qt::Key_F11), this, SLOT(toggleFullScreen()));
@@ -117,6 +119,10 @@ CMain::CMain(QWidget *p)
         m_OverallPrimary = new COverallView(this);
         m_OverallZoomed = new COverallView(this);
         m_PlotView = new CPlotView(this);
+
+        m_OverallPrimary->setMinimumSize(QSize(1, 1));
+        m_OverallZoomed->setMinimumSize(QSize(1, 1));
+        m_PlotView->setMinimumSize(QSize(1, 1));
 
         connect(m_OverallPrimary, SIGNAL(rangeSelected(float, float)), SLOT(rangeSelected(float, float)));
 
@@ -165,6 +171,12 @@ CMain::CMain(QWidget *p)
         m_ImageView = new CImageView(this);
         m_DotPlot = new CDotPlot(this);
 
+        m_Histogram3D->setMinimumSize(QSize(1, 1));
+        m_Histogram2D->setMinimumSize(QSize(1, 1));
+        m_HexView->setMinimumSize(QSize(1, 1));
+        m_ImageView->setMinimumSize(QSize(1, 1));
+        m_DotPlot->setMinimumSize(QSize(1, 1));
+
         m_Views.push_back(m_Histogram3D);
         m_Views.push_back(m_Histogram2D);
         m_Views.push_back(m_HexView);
@@ -180,7 +192,6 @@ CMain::CMain(QWidget *p)
     }
 
     switchView(-1);
-
     setLayout(top_layout);
 }
 
