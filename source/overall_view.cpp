@@ -98,21 +98,12 @@ void COverallView::setData(const quint8 *dat, qsizetype len, bool reset_selectio
             for (j = 0; i < len && j < sf; i++, j++) {
                 unsigned char c = dat[i];
                 if (c == 0x00) {
-                    r += 0x00;
-                    g += 0x00;
-                    b += 0x00;
                 } else if (0x00 < c && c <= 0x1f) {
-                    r += 0x00;
-                    g += 0x00;
                     b += 0xf0;
                 } else if (0x1f < c && c <= 0x7f) {
-                    r += 0x00;
                     g += 0xf0;
-                    b += 0x00;
                 } else if (0x7f < c && c < 0xff) {
                     r += 0xf0;
-                    g += 0x00;
-                    b += 0x00;
                 } else if (c == 0xff) {
                     r += 0xff;
                     g += 0xff;
