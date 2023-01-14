@@ -73,9 +73,18 @@ void CMain::toggleDarkMode()
 }
 
 CMain::CMain(QWidget *p)
-        : QDialog(p), m_CurrentFile(-1), m_Data(nullptr), m_Size(0), m_Start(0), m_End(0) {
-    m_DoneFlag = false;
+        : QDialog(p)
+    , m_Data(nullptr)
+    , m_Size(0)
+    , m_Start(0)
+    , m_End(0)
+    , m_CurrentFile(-1)
+    , m_Initialized(false)
+    , m_DoneFlag(false)
+    , m_ReturnToMaximized(false)
+    , m_IsResizing(false)
 
+{
     qApp->installEventFilter(this);
 
     this->setSizeGripEnabled(true);
@@ -343,6 +352,11 @@ void CMain::updateViews(bool update_iv1, bool optimize) {
 
     if (m_Data == nullptr) {
         return;
+    }
+
+    if (!m_Initialized) {
+        m_IsResizing = false;
+        m_Initialized = true;
     }
 
     // iv1 shows the entire file, iv2 shows the current segment

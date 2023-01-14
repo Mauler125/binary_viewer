@@ -92,6 +92,7 @@ protected:
 
     int m_CurrentFile;
 
+    bool m_Initialized;
     bool m_DoneFlag;
     bool m_ReturnToMaximized;
     bool m_IsResizing;
