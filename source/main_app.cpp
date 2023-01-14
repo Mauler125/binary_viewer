@@ -285,7 +285,7 @@ bool CMain::loadFile(const QString &filename) {
     m_Size = file.read(reinterpret_cast<char*>(m_Data), len);
 
     if (m_Size != len) {
-        printf("premature read '%zu' of '%zu'\n", m_Size, len);
+        printf("premature read: '%zu' of '%zu'\n", m_Size, len);
     }
 
     m_Start = 0;

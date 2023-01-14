@@ -176,7 +176,7 @@ void COverallView::updatePixmap() {
     int vh = height();
     m_Pixmap = QPixmap::fromImage(m_Image).scaled(vw, vh/*, Qt::KeepAspectRatio*/);
     setPixmap(m_Pixmap);
-    printf("%d %d   %d %d   %d %d\n", vw, vh, m_Image.width(), m_Image.height(), width(), height());
+    printf("%d %d   %d %d\n", vw, vh, m_Image.width(), m_Image.height());
 }
 
 // Gray code related functions are from https://en.wikipedia.org/wiki/Gray_code

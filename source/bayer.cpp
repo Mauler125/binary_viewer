@@ -86,65 +86,65 @@ bayerBGPixel2(const unsigned char *in, const int h, const int w, const int in_ro
 
     bool debug = false;
 
-    if (debug) printf("x,y,v: %d %d %d\n", x, y, in[y * in_row_w + x]);
-    if (debug) printf("type: %d\n", type);
+    if (debug) printf("x(%d) y(%d) v(%d)\n", x, y, in[y * in_row_w + x]);
+    if (debug) printf("type(%d)\n", type);
 
     if (type == 0) {
         n = 0;
         r = bayerEdgeHelp(in, h, w, in_row_w, y, x, n);
-        if (debug) printf("r,n=: %d %d\n", r, n);
+        if (debug) printf("r(%u) n(%d)\n", r, n);
 
         n = 0;
         g = (bayerEdgeHelp(in, h, w, in_row_w, y, x + 1, n) +
              bayerEdgeHelp(in, h, w, in_row_w, y + 1, x, n));
         if (n > 1) g /= n;
-        if (debug) printf("g,n=: %d %d\n", g, n);
+        if (debug) printf("g(%u) n(%d)\n", g, n);
 
         n = 0;
         b = bayerEdgeHelp(in, h, w, in_row_w, y + 1, x + 1, n);
-        if (debug) printf("b,n=: %d %d\n", b, n);
+        if (debug) printf("b(%u) n(%d)\n", b, n);
     } else if (type == 1) {
         n = 0;
         r = bayerEdgeHelp(in, h, w, in_row_w, y, x + 1, n);
-        if (debug) printf("r,n=: %d %d\n", r, n);
+        if (debug) printf("r(%u) n(%d)\n", r, n);
 
         n = 0;
         g = (bayerEdgeHelp(in, h, w, in_row_w, y, x, n) +
              bayerEdgeHelp(in, h, w, in_row_w, y + 1, x + 1, n));
         if (n > 1) g /= n;
-        if (debug) printf("g,n=: %d %d\n", g, n);
+        if (debug) printf("g(%u) n(%d)\n", g, n);
 
         n = 0;
         b = bayerEdgeHelp(in, h, w, in_row_w, y + 1, x, n);
-        if (debug) printf("b,n=: %d %d\n", b, n);
+        if (debug) printf("b(%u) n(%d)\n", b, n);
     } else if (type == 2) {
         n = 0;
         r = bayerEdgeHelp(in, h, w, in_row_w, y + 1, x, n);
-        if (debug) printf("r,n=: %d %d\n", r, n);
+        if (debug) printf("r(%u) n(%d)\n", r, n);
 
         n = 0;
         g = (bayerEdgeHelp(in, h, w, in_row_w, y, x, n) +
              bayerEdgeHelp(in, h, w, in_row_w, y + 1, x + 1, n));
         if (n > 1) g /= n;
-        if (debug) printf("g,n=: %d %d\n", g, n);
+        if (debug) printf("g(%u) n(%d)\n", g, n);
 
         n = 0;
         b = bayerEdgeHelp(in, h, w, in_row_w, y, x + 1, n);
-        if (debug) printf("b,n=: %d %d\n", b, n);
+        if (debug) printf("b(%u) n(%d)\n", b, n);
     } else {
         n = 0;
         r = bayerEdgeHelp(in, h, w, in_row_w, y + 1, x + 1, n);
-        if (debug) printf("r,n=: %d %d\n", r, n);
+        if (debug) printf("r(%u) n(%d)\n", r, n);
 
         n = 0;
         g = (bayerEdgeHelp(in, h, w, in_row_w, y, x + 1, n) +
              bayerEdgeHelp(in, h, w, in_row_w, y + 1, x, n));
         if (n > 0) g /= n;
-        if (debug) printf("g,n=: %d %d\n", g, n);
+        if (debug) printf("g(%u) n(%d)\n", g, n);
 
         n = 0;
         b = bayerEdgeHelp(in, h, w, in_row_w, y, x, n);
-        if (debug) printf("b,n=: %d %d\n", b, n);
+        if (debug) printf("b(%u) n(%d)\n", b, n);
     }
 
     // The R and B values are exchanged, and does not makes sense

@@ -267,13 +267,13 @@ void CDotPlot::parametersChanged() {
 //            n = n * n;
                     random.clear();
                     random.reserve(n);
-                    printf("Generating %d points in range [0, %d-1] along the diagonal\n", n, bs);
+                    printf("Generating '%d' points in range [0, %d-1] along the diagonal axis\n", n, bs);
                     for (int tt = 0; tt < n; tt++) {
                         int a = rand() % bs;
                         random.emplace_back(make_pair(a, a));
                     }
                     int n2 = min(m_MaxSamples->value(), bs * bs - bs);
-                    printf("Generating %d points in range [0, %d-1] off the diagonal\n", n2, bs);
+                    printf("Generating '%d' points in range [0, %d-1] off the diagonal axis\n", n2, bs);
                     for (int tt = 0; tt < n2;) {
                         int a = rand() % bs;
                         int b = rand() % bs;
@@ -348,7 +348,7 @@ void CDotPlot::advanceMat(int bs, const vector<pair<int, int> > &rand) {
                     if (0 <= jj && jj < m_MaterialSize * m_MaterialSize) m_Material[jj]++;
 //                    else abort();
                 }
-                printf("%d %d %d %d %d %d %d %d\n", xo, yo, tt1, tt2, i, j, m_Data[i], m_Data[j]);
+                printf("%d %d %d %d %d %d %u %u\n", xo, yo, tt1, tt2, i, j, m_Data[i], m_Data[j]);
             }
         }
     }
