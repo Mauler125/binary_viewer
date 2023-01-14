@@ -490,6 +490,8 @@ void CHistogram3D::mousePressEvent(QMouseEvent *event) {
         m_MouseY = event->y();
         event->accept();
     }
+
+    setFocus();
 }
 
 void CHistogram3D::mouseMoveEvent(QMouseEvent *event) {

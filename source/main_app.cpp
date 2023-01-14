@@ -44,6 +44,9 @@
 static const int s_ScrollWidth = 16 * 8;
 
 void CMain::toggleFullScreen() {
+
+    m_ViewModeToggled = true;
+
 	if (!isFullScreen()) {
 		m_ReturnToMaximized = isMaximized();
 	}
@@ -83,6 +86,7 @@ CMain::CMain(QWidget *p)
     , m_DoneFlag(false)
     , m_ReturnToMaximized(false)
     , m_IsResizing(false)
+    , m_ViewModeToggled(false)
 
 {
     qApp->installEventFilter(this);
@@ -225,8 +229,15 @@ bool CMain::eventFilter(QObject* object, QEvent* event)
 
 void CMain::resizeEvent(QResizeEvent *e) {
     QDialog::resizeEvent(e);
-    m_IsResizing = true;
-    updateViews(true, true);
+
+    if (!m_ViewModeToggled) {
+        m_IsResizing = true;
+        updateViews(true, true);
+    }
+    else {
+        m_ViewModeToggled = false;
+        updateViews(true, false);
+    }
 }
 
 void CMain::dropEvent(QDropEvent* ev)
@@ -420,6 +431,7 @@ void CMain::switchView(int ind) {
     }
 
     m_Views[ind]->show();
+    m_Views[ind]->setFocus();
     updateViews(false);
 }
 

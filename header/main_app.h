@@ -96,6 +96,7 @@ protected:
     bool m_DoneFlag;
     bool m_ReturnToMaximized;
     bool m_IsResizing;
+    bool m_ViewModeToggled;
 
     QStringList m_FileList;
     std::vector<QWidget*> m_Views;
