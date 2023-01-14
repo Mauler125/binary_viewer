@@ -185,7 +185,7 @@ void CDotPlot::update_pix() {
 }
 
 
-void CDotPlot::setData(const unsigned char *dat, long n) {
+void CDotPlot::setData(const quint8 *dat, qsizetype n) {
     m_Data = dat;
     m_Size = n;
 
@@ -205,7 +205,7 @@ void CDotPlot::parametersChanged() {
 
     puts("called");
 
-    long mdw = min(m_Size, (long) m_Width->value());
+    qsizetype mdw = min(m_Size, (qsizetype)m_Width->value());
     int bs = int(mdw / m_MaterialMaxSize) + ((mdw % m_MaterialMaxSize) > 0 ? 1 : 0);
     m_MaterialSize = 0;
 
@@ -217,7 +217,7 @@ void CDotPlot::parametersChanged() {
 
     int mul = bs * m_MaterialSize;
 
-    printf("%s(%d) %s(%d) %s(%d) %s(%d) %s(%d) %s(%d)\n",
+    printf("%s(%lld) %s(%lld) %s(%d) %s(%d) %s(%d) %s(%d)\n",
         NAMEOF(m_Size), m_Size, 
         NAMEOF(mdw), mdw, 
         NAMEOF(m_MaterialMaxSize), m_MaterialMaxSize, 

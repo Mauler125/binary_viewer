@@ -157,7 +157,7 @@ void CImageView::updatePixmap() {
 }
 
 
-void CImageView::setData(const unsigned char *dat, long n) {
+void CImageView::setData(const quint8 *dat, qsizetype n) {
     m_Data = dat;
     m_Size = n;
 

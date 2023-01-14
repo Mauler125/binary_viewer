@@ -45,7 +45,7 @@ public:
     ~CHistogram3D() override;
 
 public slots:
-    void setData(const unsigned char *dat, long n);
+    void setData(const quint8 *dat, qsizetype n);
     void parametersChanged();
 
     void setPositionScale(float f);
@@ -76,8 +76,8 @@ protected:
     GLfloat* m_Colors;
 
     int *m_Histogram;
-    const unsigned char *m_Data;
-    long m_Size;
+    const quint8 *m_Data;
+    qsizetype m_Size;
     int m_Flags;
 
     int m_VertexCount;

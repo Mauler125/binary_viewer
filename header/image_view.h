@@ -34,7 +34,7 @@ public:
     ~CImageView() override = default;
 
 public slots:
-    void setData(const unsigned char *dat, long n);
+    void setData(const quint8 *dat, qsizetype n);
     void parametersChanged();
 
 protected slots:
@@ -76,8 +76,8 @@ protected:
 
     QSpinBox *m_Offset, *m_Width;
     QComboBox *m_Type;
-    const unsigned char *m_Data;
-    long m_Size;
+    const quint8 *m_Data;
+    qsizetype m_Size;
     bool m_Inverted;
 
     QImage m_Image;

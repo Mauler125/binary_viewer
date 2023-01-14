@@ -34,7 +34,7 @@ public:
     int rowHeight() const;
 
 public slots:
-    void setData(const unsigned char *dat, long n);
+    void setData(const quint8 *dat, qsizetype n);
     void setStart(int);
 
 protected slots:
@@ -45,9 +45,9 @@ protected:
 
     int columnStart(int c, int fw) const;
 
-    const unsigned char *m_Data;
-    long m_Size;
-    int m_Offset;
+    const quint8 *m_Data;
+    qsizetype m_Size;
+    qsizetype m_Offset;
     QFont m_Font;
 };
 
@@ -58,7 +58,7 @@ public:
     ~CHexView() override;
 
 public slots:
-    void setData(const unsigned char *dat, long n);
+    void setData(const quint8 *dat, qsizetype n);
     void setStart(int);
 
 protected slots:
@@ -72,8 +72,8 @@ protected:
     CHexLogic *m_HexLogic;
     QScrollBar *m_ScrollBar;
 
-    const unsigned char *m_Data;
-    long m_Size;
+    const quint8 *m_Data;
+    qsizetype m_Size;
 };
 
 #endif

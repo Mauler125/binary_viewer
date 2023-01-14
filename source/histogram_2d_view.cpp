@@ -132,7 +132,7 @@ void CHistogram2D::updatePixmap() {
     setPixmap(m_Pixmap);
 }
 
-void CHistogram2D::setData(const unsigned char *dat, long n) {
+void CHistogram2D::setData(const quint8 *dat, qsizetype n) {
     m_Data = dat;
     m_Size = n;
 

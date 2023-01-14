@@ -32,8 +32,8 @@ public:
 
 public slots:
     void setImage(int ind, QImage &img);
-    void setData(const float *bin, long len, bool normalize = true);
-    void setData(int ind, const float *bin, long len, bool normalize = true);
+    void setData(const float *bin, qsizetype len, bool normalize = true);
+    void setData(int ind, const float *bin, qsizetype len, bool normalize = true);
     void enableSelection(bool);
 
 protected slots:

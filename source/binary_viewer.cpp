@@ -88,7 +88,7 @@ void CHexLogic::paintEvent(QPaintEvent *e) {
         int x = columnStart(0, fw);
         int y = (i + 1) * fh;
 
-        long pos = (m_Offset + i) * 16;
+        qsizetype pos = (m_Offset + i) * 16;
 
         QString s1;
         s1 = QString("0x %1 %2").arg((pos >> 16) & 0xffff, 4, 16, QChar('0')).arg(pos & 0xffff, 4, 16, QChar('0'));
@@ -181,7 +181,7 @@ void CHexLogic::resizeEvent(QResizeEvent *e) {
     m_Font = font;
 }
 
-void CHexLogic::setData(const unsigned char *dat, long n) {
+void CHexLogic::setData(const quint8 *dat, qsizetype n) {
     m_Data = dat;
     m_Size = n;
     m_Offset = 0;
@@ -231,7 +231,7 @@ void CHexView::resizeEvent(QResizeEvent *e) {
     m_ScrollBar->setPageStep(page_step);
 }
 
-void CHexView::setData(const unsigned char *dat, long n) {
+void CHexView::setData(const quint8 *dat, qsizetype n) {
     m_Data = dat;
     m_Size = n;
 

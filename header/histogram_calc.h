@@ -21,6 +21,7 @@
 #define _HISTOGRAM_CALC_H_
 
 #include <string>
+#include <stdint.h>
 
 enum class HistoDtype_t {
     NONE,
@@ -35,9 +36,9 @@ enum class HistoDtype_t {
 
 HistoDtype_t string_to_histo_dtype(const std::string &s);
 
-int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype);
-int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, bool overlap = true);
-float *generate_histo(const unsigned char *dat_u8, long n);
-float *generate_entropy(const unsigned char *dat_u8, long n, long &rv_len, int bs = 256);
+int *generate_histo_2d(const uint8_t *dat_u8, int64_t n, HistoDtype_t dtype);
+int *generate_histo_3d(const uint8_t*dat_u8, int64_t n, HistoDtype_t dtype, bool overlap = true);
+float *generate_histo(const uint8_t*dat_u8, int64_t n);
+float *generate_entropy(const uint8_t*dat_u8, int64_t n, int64_t&rv_len, int64_t bs = 256);
 
 #endif

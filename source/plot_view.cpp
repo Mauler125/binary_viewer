@@ -43,12 +43,12 @@ void CPlotView::setImage(int ind, QImage &img) {
     update();
 }
 
-void CPlotView::setData(const float *dat, long len, bool normalize) {
+void CPlotView::setData(const float *dat, qsizetype len, bool normalize) {
     m_ImageIndex = 0;
     setData(0, dat, len, normalize);
 }
 
-void CPlotView::setData(int ind, const float *dat, long len, bool normalize) {
+void CPlotView::setData(int ind, const float *dat, qsizetype len, bool normalize) {
     int w = width();
     int h = height();
 
@@ -57,7 +57,7 @@ void CPlotView::setData(int ind, const float *dat, long len, bool normalize) {
     if (normalize) {
         mn = 99999999.;
         mx = -99999999.;
-        for (int i = 0; i < len; i++) {
+        for (qsizetype i = 0; i < len; i++) {
             mn = min(mn, dat[i]);
             mx = max(mx, dat[i]);
         }
@@ -76,9 +76,9 @@ void CPlotView::setData(int ind, const float *dat, long len, bool normalize) {
         auto cnt = new int[h];
         memset(cnt, 0, h * sizeof(int));
 
-        for (int i = 0; i < len; i++) {
+        for (qsizetype i = 0; i < len; i++) {
             float v = dat[i];
-            int ind2 = int((i / float(len)) * (h - 1) + .5);
+            qsizetype ind2 = qsizetype((i / double(len)) * (h - 1) + .5);
             acc[ind2] += (v - mn) / (mx - mn);
             cnt[ind2]++;
         }

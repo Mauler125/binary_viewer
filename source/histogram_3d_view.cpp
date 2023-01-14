@@ -188,7 +188,7 @@ CHistogram3D::~CHistogram3D() {
     }
 }
 
-void CHistogram3D::setData(const unsigned char *dat, long n) {
+void CHistogram3D::setData(const quint8 *dat, qsizetype n) {
     m_Data = dat;
     m_Size = n;
 

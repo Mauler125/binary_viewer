@@ -35,7 +35,7 @@ public:
     ~CDotPlot() override;
 
 public slots:
-    void setData(const unsigned char *dat, long n);
+    void setData(const quint8 *dat, qsizetype n);
     void parametersChanged();
 
 protected slots:
@@ -49,8 +49,8 @@ protected:
     void update_pix();
 
     QSpinBox *m_Offset1, *m_Offset2, *m_Width, *m_MaxSamples;
-    const unsigned char *m_Data;
-    long m_Size;
+    const quint8 *m_Data;
+    qsizetype m_Size;
 
     int *m_Material;
     int m_MaterialMaxSize;

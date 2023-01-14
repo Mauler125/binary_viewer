@@ -34,7 +34,7 @@ public:
 public slots:
 
     void setImage(QImage &img);
-    void set_data(const unsigned char *bin, long len, bool reset_selection = true);
+    void setData(const quint8 *bin, qsizetype len, bool reset_selection = true);
 
     void enableSelection(bool);
     void enableByteClasses(bool);
@@ -60,8 +60,8 @@ protected:
     bool m_UseByteClasses;
     bool m_UseHilbertCurve;
 
-    const unsigned char *m_Data;
-    long m_Size;
+    const quint8 *m_Data;
+    qsizetype m_Size;
 
     QImage m_Image;
     QPixmap m_Pixmap;

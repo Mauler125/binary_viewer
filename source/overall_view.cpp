@@ -56,7 +56,7 @@ void COverallView::setImage(QImage &img) {
     update();
 }
 
-void COverallView::set_data(const unsigned char *dat, long len, bool reset_selection) {
+void COverallView::setData(const quint8 *dat, qsizetype len, bool reset_selection) {
     m_Data = dat;
     m_Size = len;
 
@@ -76,12 +76,12 @@ void COverallView::set_data(const unsigned char *dat, long len, bool reset_selec
     img.fill(0);
 
     curve_t hilbert;
-    int h_ind = 0;
+    size_t h_ind = 0;
     if (m_UseHilbertCurve) gilbert2d(img_w, img_h, hilbert);
 
     auto p = (unsigned int *) img.bits();
 
-    for (int i = 0; i < len;) {
+    for (qsizetype i = 0; i < len;) {
         int r = 0, g = 0, b = 0;
 
         if (!m_UseByteClasses) {
@@ -134,7 +134,9 @@ void COverallView::set_data(const unsigned char *dat, long len, bool reset_selec
         if (!m_UseHilbertCurve) {
             *p++ = v;
         } else {
-            if (h_ind >= hilbert.size()) abort();
+            if (h_ind >= hilbert.size()) {
+                abort();
+            }
 
             int x = hilbert[h_ind].first;
             int y = hilbert[h_ind++].second;
@@ -209,7 +211,7 @@ void COverallView::mousePressEvent(QMouseEvent *e) {
         v = BinaryToGray((GrayToBinary(v) + 1) & 0x03);
         m_UseByteClasses = v & 0x02;
         m_UseHilbertCurve = v & 0x01;
-        set_data(m_Data, m_Size, false);
+        setData(m_Data, m_Size, false);
         return;
     }
 

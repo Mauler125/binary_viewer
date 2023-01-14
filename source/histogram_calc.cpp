@@ -54,8 +54,8 @@ HistoDtype_t string_to_histo_dtype(const std::string &s) {
 
 
 template<class T>
-void hist_float_helper_2d(int *hist, T *dat_f, long n) {
-    for (long i = 0; i < n / long(sizeof(T)) - 1; i++) {
+void hist_float_helper_2d(int *hist, T *dat_f, int64_t n) {
+    for (int64_t i = 0; i < n / int64_t(sizeof(T)) - 1; i++) {
         int a1;
         int a2;
         if (sizeof(T) == 4) {
@@ -100,7 +100,7 @@ void hist_float_helper_2d(int *hist, T *dat_f, long n) {
 /// @param [in] dat_u8 Byte data to be analyzed.
 /// @param [in] n Length of dat_u8 in bytes
 /// @return The calculated histogram of each byte of dat_u8, as vector of length 256 scaled between [0., 1.]
-float *generate_histo(const unsigned char *dat_u8, long n) { //, histo_dtype_t dtype) {
+float *generate_histo(const uint8_t *dat_u8, int64_t n) { //, histo_dtype_t dtype) {
     auto hist = new float[256];
     memset(hist, 0, sizeof(hist[0]) * 256);
 
@@ -108,7 +108,7 @@ float *generate_histo(const unsigned char *dat_u8, long n) { //, histo_dtype_t d
     //  abort()
     //}
 
-    for (long i = 0; i < n; i++) {
+    for (int64_t i = 0; i < n; i++) {
         hist[dat_u8[i]]++;
     }
 
@@ -128,7 +128,7 @@ float *generate_histo(const unsigned char *dat_u8, long n) { //, histo_dtype_t d
 /// @param [in] n Length of dat_u8 in bytes.
 /// @param [in] dtype The type of data to cast dat_u8 as.
 /// @return The 2d histogram, as a linearized matrix of size 256 * 256, containing counts of each digram,
-int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) {
+int *generate_histo_2d(const uint8_t *dat_u8, int64_t n, HistoDtype_t dtype) {
     auto hist = new int[256 * 256];
     memset(hist, 0, sizeof(hist[0]) * 256 * 256);
 
@@ -136,7 +136,7 @@ int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) 
         case HistoDtype_t::NONE:
             break;
         case HistoDtype_t::U8: {
-            for (long i = 0; i < n - 1; i++) {
+            for (int64_t i = 0; i < n - 1; i++) {
                 int a1 = dat_u8[i + 0];
                 int a2 = dat_u8[i + 1];
 
@@ -145,8 +145,8 @@ int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) 
         }
             break;
         case HistoDtype_t::U16: {
-            auto dat_u16 = (const unsigned short *) dat_u8;
-            for (long i = 0; i < n / 2 - 1; i++) {
+            auto dat_u16 = (const uint16_t *) dat_u8;
+            for (int64_t i = 0; i < n / 2 - 1; i++) {
                 int a1 = dat_u16[i + 0] / float(0xffff) * 255.;
                 int a2 = dat_u16[i + 1] / float(0xffff) * 255.;
 
@@ -155,8 +155,8 @@ int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) 
         }
             break;
         case HistoDtype_t::U32: {
-            auto dat_u32 = (const unsigned int *) dat_u8;
-            for (long i = 0; i < n / 4 - 1; i++) {
+            auto dat_u32 = (const uint32_t *) dat_u8;
+            for (int64_t i = 0; i < n / 4 - 1; i++) {
                 int a1 = dat_u32[i + 0] / float(0xffffffff) * 255.;
                 int a2 = dat_u32[i + 1] / float(0xffffffff) * 255.;
 
@@ -165,8 +165,8 @@ int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) 
         }
             break;
         case HistoDtype_t::U64: {
-            auto dat_u64 = (const unsigned long long *) dat_u8;
-            for (long i = 0; i < n / 8 - 1; i++) {
+            auto dat_u64 = (const uint64_t *) dat_u8;
+            for (int64_t i = 0; i < n / 8 - 1; i++) {
                 int a1 = dat_u64[i + 0] / float(0xffffffffffffffff) * 255.;
                 int a2 = dat_u64[i + 1] / float(0xffffffffffffffff) * 255.;
 
@@ -206,8 +206,8 @@ int *generate_histo_2d(const unsigned char *dat_u8, long n, HistoDtype_t dtype) 
 }
 
 template<class T>
-void hist_float_helper_3d(int *hist, T *dat_f, long n, int st) {
-    for (long i = 0; i < n / long(sizeof(T)) - 2; i += st) {
+void hist_float_helper_3d(int *hist, T *dat_f, int64_t n, int st) {
+    for (int64_t i = 0; i < n / int64_t(sizeof(T)) - 2; i += st) {
         int a1;
         int a2;
         int a3;
@@ -265,7 +265,7 @@ void hist_float_helper_3d(int *hist, T *dat_f, long n, int st) {
 /// @param [in] dtype The type of data to cast dat_u8 as.
 /// @param [in] overlap Whether to move by a single byte (true) or length of dtype (false) (not implemented correctly.)
 /// @return The 2d histogram, as a linearized matrix of size 256 * 256, containing counts of each digram,
-int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, bool overlap) {
+int *generate_histo_3d(const uint8_t *dat_u8, int64_t n, HistoDtype_t dtype, bool overlap) {
     auto hist = new int[256 * 256 * 256];
     memset(hist, 0, sizeof(hist[0]) * 256 * 256 * 256);
 
@@ -275,7 +275,7 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
         case HistoDtype_t::NONE:
             break;
         case HistoDtype_t::U8: {
-            for (long i = 0; i < n - 2; i += st) {
+            for (int64_t i = 0; i < n - 2; i += st) {
                 int a1 = dat_u8[i + 0];
                 int a2 = dat_u8[i + 1];
                 int a3 = dat_u8[i + 2];
@@ -285,8 +285,8 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
         }
             break;
         case HistoDtype_t::U12: {
-            auto dat_u16 = (const unsigned short *) dat_u8;
-            for (long i = 0; i < n / 2 - 2; i += st) {
+            auto dat_u16 = (const uint16_t *) dat_u8;
+            for (int64_t i = 0; i < n / 2 - 2; i += st) {
                 int a1 = (dat_u16[i + 0] & 0x0fff) / float(0x0fff) * 255.;
                 int a2 = (dat_u16[i + 1] & 0x0fff) / float(0x0fff) * 255.;
                 int a3 = (dat_u16[i + 2] & 0x0fff) / float(0x0fff) * 255.;
@@ -296,8 +296,8 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
         }
             break;
         case HistoDtype_t::U16: {
-            auto dat_u16 = (const unsigned short *) dat_u8;
-            for (long i = 0; i < n / 2 - 2; i += st) {
+            auto dat_u16 = (const uint16_t *) dat_u8;
+            for (int64_t i = 0; i < n / 2 - 2; i += st) {
                 int a1 = dat_u16[i + 0] / float(0xffff) * 255.;
                 int a2 = dat_u16[i + 1] / float(0xffff) * 255.;
                 int a3 = dat_u16[i + 2] / float(0xffff) * 255.;
@@ -307,8 +307,8 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
         }
             break;
         case HistoDtype_t::U32: {
-            auto dat_u32 = (const unsigned int *) dat_u8;
-            for (long i = 0; i < n / 4 - 2; i += st) {
+            auto dat_u32 = (const uint32_t *) dat_u8;
+            for (int64_t i = 0; i < n / 4 - 2; i += st) {
                 int a1 = dat_u32[i + 0] / float(0xffffffff) * 255.;
                 int a2 = dat_u32[i + 1] / float(0xffffffff) * 255.;
                 int a3 = dat_u32[i + 2] / float(0xffffffff) * 255.;
@@ -318,8 +318,8 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
         }
             break;
         case HistoDtype_t::U64: {
-            auto dat_u64 = (const unsigned long long *) dat_u8;
-            for (long i = 0; i < n / 8 - 2; i += st) {
+            auto dat_u64 = (const uint64_t *) dat_u8;
+            for (int64_t i = 0; i < n / 8 - 2; i += st) {
                 int a1 = dat_u64[i + 0] / float(0xffffffffffffffff) * 255.;
                 int a2 = dat_u64[i + 1] / float(0xffffffffffffffff) * 255.;
                 int a3 = dat_u64[i + 2] / float(0xffffffffffffffff) * 255.;
@@ -365,23 +365,23 @@ int *generate_histo_3d(const unsigned char *dat_u8, long n, HistoDtype_t dtype, 
 /// @param [out] rv_len The length of the return vector.
 /// @param [in] bs The block sized used to analyze dat_u8.
 /// @return The calculated entropy for each block of dat_u8, as vector of length rv_len scaled between [0., 1.]
-float *generate_entropy(const unsigned char *dat_u8, long n, long &rv_len, int bs) { //, histo_dtype_t dtype) {
+float *generate_entropy(const uint8_t *dat_u8, int64_t n, int64_t&rv_len, int64_t bs) { //, histo_dtype_t dtype) {
     if (n <= 0) {
         rv_len = 0;
         return nullptr;
     }
 
-    int inc = bs; // set to a value less than bs to create overlapping
+    int64_t inc = bs; // set to a value less than bs to create overlapping
 
-    long ddn = n / inc + (n % inc ? 1 : 0);
+    int64_t ddn = n / inc + (n % inc ? 1 : 0);
     auto dd = new float[ddn];
     memset(dd, 0, sizeof(dd[0]) * ddn);
 
-    for (long is = 0; is < n; is += inc) {
-        long ie = min(n, is + bs);
+    for (int64_t is = 0; is < n; is += inc) {
+        int64_t ie = min(n, is + bs);
 
         int dict[256] = {0};
-        for (long i = is; i < ie; i++) {
+        for (int64_t i = is; i < ie; i++) {
             dict[dat_u8[i]]++;
         }
 
@@ -395,9 +395,9 @@ float *generate_entropy(const unsigned char *dat_u8, long n, long &rv_len, int b
         entropy /= logf(2.0);
         entropy /= 8.0;
 
-        int di = is / bs;
+        int64_t di = is / bs;
         if (di >= ddn) {
-            printf("%d %d %d %d\n", is, bs, is/bs, n);
+            printf("%lld %lld %lld %lld\n", is, bs, is/bs, n);
             continue;
         }
 
@@ -405,6 +405,5 @@ float *generate_entropy(const unsigned char *dat_u8, long n, long &rv_len, int b
     }
 
     rv_len = ddn;
-
     return dd;
 }

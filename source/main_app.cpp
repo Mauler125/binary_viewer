@@ -230,14 +230,11 @@ bool CMain::loadFile(const QString &filename) {
     }
     g_currentfile = filename;
 
-    FILE *f = fopen(filename.toStdString().c_str(), "rb");
-    if (!f) {
+    QFile file(filename.toStdString().c_str());
+    if (!file.open(QIODevice::OpenModeFlag::ReadOnly)) {
         fprintf(stderr, "Unable to open %s\n", filename.toStdString().c_str());
         return false;
     }
-    fseek(f, 0, SEEK_END);
-    size_t len = ftell(f);
-    fseek(f, 0, SEEK_SET);
 
     if (m_Data != nullptr) {
         delete[] m_Data;
@@ -247,11 +244,11 @@ bool CMain::loadFile(const QString &filename) {
         m_End = 0;
     }
 
-    m_Data = new unsigned char[len];
-    m_Size = fread(m_Data, 1, len, f);
-    fclose(f);
+    qsizetype len = file.size();
+    m_Data = new quint8[len];
+    m_Size = file.read(reinterpret_cast<char*>(m_Data), len);
 
-    if (len != m_Size) {
+    if (m_Size != len) {
         printf("premature read %zu of %zu\n", m_Size, len);
     }
 
@@ -259,7 +256,6 @@ bool CMain::loadFile(const QString &filename) {
     m_End = m_Size;
 
     updateViews();
-
     return true;
 }
 
@@ -321,11 +317,11 @@ void CMain::updateViews(bool update_iv1) {
     if (m_Data == nullptr) return;
 
     // iv1 shows the entire file, iv2 shows the current segment
-    if (update_iv1) m_OverallPrimary->set_data(m_Data + 0, m_Size);
-    m_OverallZoomed->set_data(m_Data + m_Start, m_End - m_Start);
+    if (update_iv1) m_OverallPrimary->setData(m_Data + 0, m_Size);
+    m_OverallZoomed->setData(m_Data + m_Start, m_End - m_Start);
 
     {
-        long n;
+        int64_t n;
         auto dd = generate_entropy(m_Data + m_Start, m_End - m_Start, n);
         if (dd) {
             m_PlotView->setData(0, dd, n);

@@ -34,7 +34,7 @@ public:
     ~CHistogram2D() override;
 
 public slots:
-    void setData(const unsigned char *dat, long n);
+    void setData(const quint8 *dat, qsizetype n);
     void parametersChanged();
 
 protected slots:
@@ -49,8 +49,8 @@ protected:
     QSpinBox *m_Threshold, *m_Scale;
     QComboBox *m_Type;
     int *m_Histogram;
-    const unsigned char *m_Data;
-    long m_Size;
+    const quint8 *m_Data;
+    qsizetype m_Size;
 
     QImage m_Image;
     QPixmap m_Pixmap;
