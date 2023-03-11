@@ -64,15 +64,21 @@ void CMain::toggleFullScreen() {
 void CMain::toggleLightMode()
 {
     loadStyle(":/qstyle/light/style.qss");
-    QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
-    s.setValue("theme/darkMode", "0");
+
+    QString absPath = QDir(QApplication::applicationDirPath()).filePath("settings/style.ini");
+    QSettings settings(absPath, QSettings::IniFormat);
+
+    settings.setValue("theme/darkMode", "0");
 }
 
 void CMain::toggleDarkMode()
 {
     loadStyle(":/qstyle/dark/style.qss");
-    QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
-    s.setValue("theme/darkMode", "1");
+
+    QString absPath = QDir(QApplication::applicationDirPath()).filePath("settings/style.ini");
+    QSettings settings(absPath, QSettings::IniFormat);
+
+    settings.setValue("theme/darkMode", "1");
 }
 
 CMain::CMain(QWidget *p)

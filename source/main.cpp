@@ -42,8 +42,9 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("confluencerd.com");
     QCoreApplication::setApplicationName("binary_visualizer");
 
-    QSettings s(QString("settings/style.ini"), QSettings::IniFormat);
-    QVariant darkMode = s.value("theme/darkMode", "0");
+    QString absPath = QDir(QApplication::applicationDirPath()).filePath("settings/style.ini");
+    QSettings settings(absPath, QSettings::IniFormat);
+    QVariant darkMode = settings.value("theme/darkMode", "0");
     const char* style_set = darkMode.toBool() ? ":/qstyle/dark/style.qss" : ":/qstyle/light/style.qss";
 
     CMain::loadStyle(style_set);
